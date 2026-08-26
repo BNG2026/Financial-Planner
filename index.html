@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Financial Planning App</title>
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --panel:#ffffff;
+      --panel-2:#f9fafc;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --border:#dbe2ea;
+      --accent:#2563eb;
+      --accent-2:#1d4ed8;
+      --success:#16a34a;
+      --warning:#d97706;
+      --danger:#dc2626;
+      --shadow:0 10px 25px rgba(15,23,42,.08);
+      --radius:16px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+
+    button,input,textarea,select{
+      font:inherit;
+    }
+
+    input,textarea,select{
+      width:100%;
+      padding:11px 12px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#fff;
+    }
+
+    input:focus,textarea:focus,select:focus{
+      outline:none;
+      border-color:#93c5fd;
+      box-shadow:0 0 0 4px rgba(37,99,235,.08);
+    }
+
+    textarea{
+      min-height:110px;
+      resize:vertical;
+    }
+
+    .app{
+      display:grid;
+      grid-template-columns:280px 1fr;
+      min-height:100vh;
+    }
+
+    .sidebar{
+      background:#0f172a;
+      color:#e5e7eb;
+      padding:20px 16px;
+      position:sticky;
+      top:0;
+      height:100vh;
+      overflow:auto;
+    }
+
+    .brand{
+      padding:8px 10px 18px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      margin-bottom:16px;
+    }
+
+    .brand h1{
+      margin:0 0 6px;
+      font-size:1.1rem;
+    }
+
+    .brand p{
+      margin:0;
+      color:#94a3b8;
+      font-size:.92rem;
+    }
+
+    .nav-title{
+      font-size:.75rem;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:#94a3b8;
+      margin:0 10px 8px;
+    }
+
+    .nav-btn{
+      width:100%;
+      border:0;
+      background:transparent;
+      color:#e5e7eb;
+      padding:12px 12px;
+      margin:3px 0;
+      text-align:left;
+      border-radius:12px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .nav-btn.active{
+      background:rgba(37,99,235,.18);
+      color:#fff;
+    }
+
+    .nav-dot{
+      width:9px;height:9px;border-radius:50%;
+      background:#64748b;
+      display:inline-block;
+      flex:0 0 auto;
+    }
+
+    .nav-btn.active .nav-dot{background:#60a5fa}
+
+    .sidebar-footer{
+      margin-top:24px;
+      padding:14px 12px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+      color:#cbd5e1;
+      font-size:.92rem;
+    }
+
+    .main{
+      padding:24px;
+    }
+
+    .topbar{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:20px;
+      flex-wrap:wrap;
+    }
+
+    .topbar h2{
+      margin:0;
+      font-size:1.6rem;
+    }
+
+    .topbar .sub{
+      margin:5px 0 0;
+      color:var(--muted);
+    }
+
+    .toolbar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .chip,.btn{
+      border:0;
+      border-radius:12px;
+      padding:11px 14px;
+      cursor:pointer;
+      font-weight:600;
+    }
+
+    .chip{
+      background:var(--panel);
+      border:1px solid var(--border);
+    }
+
+    .btn.primary{
+      background:var(--accent);
+      color:#fff;
+    }
+
+    .btn.secondary{
+      background:#e5eefc;
+      color:#1e3a8a;
+    }
+
+    .btn.ghost{
+      background:#f3f4f6;
+      color:#374151;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(12, 1fr);
+      gap:16px;
+    }
+
+    .card,.panel{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+
+    .card h3,.panel h3{
+      margin:0 0 12px;
+    }
+
+    .kpi{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .kpi .label{
+      color:var(--muted);
+      font-size:.92rem;
+    }
+
+    .kpi .value{
+      font-size:1.5rem;
+      font-weight:700;
+    }
+
+    .kpi .hint{
+      color:var(--muted);
+      font-size:.9rem;
+    }
+
+    .span-3{grid-column:span 3}
+    .span-4{grid-column:span 4}
+    .span-6{grid-column:span 6}
+    .span-8{grid-column:span 8}
+    .span-12{grid-column:span 12}
+
+    .chart-placeholder{
+      height:260px;
+      border:1px dashed var(--border);
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
+      background:linear-gradient(180deg, #fff, #f8fafc);
+      text-align:center;
+      padding:20px;
+    }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns:repeat(12, 1fr);
+      gap:12px;
+    }
+
+    .field{
+      grid-column:span 4;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .field.small{grid-column:span 3}
+    .field.half{grid-column:span 6}
+    .field.full{grid-column:span 12}
+
+    label{
+      font-size:.9rem;
+      font-weight:600;
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      border:1px solid var(--border);
+      border-radius:14px;
+      margin-top:14px;
+      background:#fff;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:980px;
+    }
+
+    th,td{
+      padding:12px 14px;
+      border-bottom:1px solid var(--border);
+      text-align:left;
+      vertical-align:top;
+    }
+
+    th{
+      background:#f8fafc;
+    }
+
+    .status{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:.88rem;
+      font-weight:600;
+    }
+
+    .status .dot{
+      width:8px;height:8px;border-radius:50%;
+      background:currentColor;
+      display:inline-block;
+    }
+
+    .success{color:var(--success);background:#ecfdf5}
+    .warning{color:var(--warning);background:#fff7ed}
+    .danger{color:var(--danger);background:#fef2f2}
+
+    .two-col{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:16px;
+    }
+
+    .mini-list{
+      margin:0;
+      padding-left:18px;
+    }
+
+    .muted{color:var(--muted)}
+    .message{
+      margin-bottom:16px;
+      padding:14px 16px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:#fff;
+    }
+
+    .tabs{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+
+    .tab-btn{
+      border:1px solid var(--border);
+      background:#fff;
+      padding:10px 14px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:600;
+      color:#374151;
+    }
+
+    .tab-btn.active{
+      background:var(--accent);
+      color:#fff;
+      border-color:var(--accent);
+    }
+
+    .tab-panel{display:none}
+    .tab-panel.active{display:block}
+
+    .small{font-size:.92rem}
+    .section-title{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-end;
+      margin-bottom:12px;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 12px;
+      border-radius:999px;
+      background:#f3f4f6;
+      color:#374151;
+      font-size:.88rem;
+      font-weight:600;
+    }
+
+    .radio-group{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      padding:10px 0 0;
+    }
+
+    .radio-card{
+      flex:1 1 220px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px;
+      background:#fff;
+    }
+
+    .radio-card label{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      cursor:pointer;
+      font-weight:600;
+    }
+
+    .radio-card .desc{
+      margin:6px 0 0 26px;
+      color:var(--muted);
+      font-size:.92rem;
+      line-height:1.4;
+    }
+
+    .inline-help{
+      margin-top:8px;
+      font-size:.88rem;
+      color:var(--muted);
+    }
+
+    @media (max-width: 1100px){
+      .app{grid-template-columns:1fr}
+      .sidebar{
+        position:relative;
+        height:auto;
+      }
+      .span-3,.span-4,.span-6,.span-8,.span-12,.field,.field.small,.field.half{
+        grid-column:span 12;
+      }
+      .two-col{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>Financial Planning App</h1>
+        <p>Production-style HTML prototype</p>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-title">Navigation</div>
+        <button class="nav-btn active" data-tab="dashboard"><span class="nav-dot"></span>Dashboard</button>
+        <button class="nav-btn" data-tab="accounts"><span class="nav-dot"></span>Accounts</button>
+        <button class="nav-btn" data-tab="income"><span class="nav-dot"></span>Income</button>
+        <button class="nav-btn" data-tab="expenses"><span class="nav-dot"></span>Expenses</button>
+        <button class="nav-btn" data-tab="goals"><span class="nav-dot"></span>Goals</button>
+        <button class="nav-btn" data-tab="scenarios"><span class="nav-dot"></span>Scenarios</button>
+        <button class="nav-btn" data-tab="assistant"><span class="nav-dot"></span>AI Assistant</button>
+      </div>
+
+      <div class="sidebar-footer">
+        <strong>Persistence</strong>
+        <div class="muted small" style="margin-top:6px">
+          Accounts, income, expenses, goals, profile, and scenarios are saved locally as you type.
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h2>Dashboard</h2>
+          <p class="sub">Track accounts, cash flow, goals, and retirement projections in real time.</p>
+        </div>
+        <div class="toolbar">
+          <button class="chip" id="saveAllBtn">Save All</button>
+          <button class="chip" id="exportPlanBtn">Export Plan</button>
+          <button class="chip" id="resetBtn">Reset Demo</button>
+        </div>
+      </div>
+
+      <div id="messageArea"></div>
+
+      <div class="grid">
+        <div class="card span-3">
+          <div class="kpi">
+            <div class="label">Net Worth</div>
+            <div class="value" id="netWorthValue">$0</div>
+            <div class="hint">Assets minus liabilities</div>
+          </div>
+        </div>
+
+        <div class="card span-3">
+          <div class="kpi">
+            <div class="label">Monthly Cash Flow</div>
+            <div class="value" id="cashFlowValue">$0</div>
+            <div class="hint">Income minus expenses</div>
+          </div>
+        </div>
+
+        <div class="card span-3">
+          <div class="kpi">
+            <div class="label">Savings Rate</div>
+            <div class="value" id="savingsRateValue">0%</div>
+            <div class="hint">Contribution rate from income</div>
+          </div>
+        </div>
+
+        <div class="card span-3">
+          <div class="kpi">
+            <div class="label">Retirement Readiness</div>
+            <div class="value" id="readinessValue">0%</div>
+            <div class="hint">
+              <span id="readinessStatus" class="status warning"><span class="dot"></span>Watch</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card span-8">
+          <h3>Retirement Projection</h3>
+          <div class="chart-placeholder">
+            Projection chart placeholder
+            <br />
+            <small>Replace with charting later if desired.</small>
+          </div>
+        </div>
+
+        <div class="card span-4">
+          <h3>Projection Summary</h3>
+          <ul class="mini-list">
+            <li id="monthlyIncomeSummary"></li>
+            <li id="annualExpensesSummary"></li>
+            <li id="incomeGapSummary"></li>
+            <li id="depletionAgeSummary"></li>
+          </ul>
+        </div>
+
+        <div class="card span-12">
+          <div class="tabs">
+            <button class="tab-btn active" data-panel="dashboard">Overview</button>
+            <button class="tab-btn" data-panel="accounts">Accounts</button>
+            <button class="tab-btn" data-panel="income">Income</button>
+            <button class="tab-btn" data-panel="expenses">Expenses</button>
+            <button class="tab-btn" data-panel="goals">Goals</button>
+          </div>
+
+          <section class="tab-panel active" id="dashboard-panel">
+            <div class="section-title">
+              <h3 style="margin:0">Overview</h3>
+              <span class="pill" id="summaryUpdated">Live calculations enabled</span>
+            </div>
+            <p class="muted small">
+              Update any field in Accounts, Income, Expenses, or Goals and the calculator will recalculate immediately.
+            </p>
+          </section>
+
+          <section class="tab-panel" id="accounts-panel">
+            <h3>Investment Accounts</h3>
+            <p class="muted small" style="margin-top:-4px">
+              Add brokerage, 401(k), IRA, Roth, HSA, and other asset accounts.
+            </p>
+
+            <div class="form-grid">
+              <div class="field half">
+                <label>Account Name</label>
+                <input id="newAccountName" type="text" placeholder="e.g. Vanguard 401(k)" />
+              </div>
+              <div class="field half">
+                <label>Account Type</label>
+                <select id="newAccountType">
+                  <option value="401k">401(k)</option>
+                  <option value="ira">IRA</option>
+                  <option value="roth">Roth IRA</option>
+                  <option value="brokerage">Brokerage</option>
+                  <option value="hsa">HSA</option>
+                  <option value="cash">Cash / Savings</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="field half">
+                <label>Current Balance</label>
+                <input id="newAccountBalance" type="number" min="0" step="1" placeholder="250000" />
+              </div>
+              <div class="field half">
+                <label>Annual Contribution</label>
+                <input id="newAccountContribution" type="number" min="0" step="1" placeholder="14000" />
+              </div>
+              <div class="field half">
+                <label>Expected Annual Return %</label>
+                <input id="newAccountReturn" type="number" step="0.1" placeholder="6" />
+              </div>
+              <div class="field half">
+                <label>Tax-Advantaged</label>
+                <select id="newAccountTaxAdvantaged">
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btn primary" id="addAccountBtn">Add Account</button>
+              <button class="btn secondary" id="saveAccountsBtn">Save Accounts</button>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Balance</th>
+                    <th>Contribution / Yr</th>
+                    <th>Return %</th>
+                    <th>Tax Adv.</th>
+                    <th>Projected 1 Yr</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="accountsTableBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="tab-panel" id="income-panel">
+            <h3>Income Sources</h3>
+            <p class="muted small" style="margin-top:-4px">
+              Choose either monthly income inputs or pension lump sum mode.
+            </p>
+
+            <div class="form-grid">
+              <div class="field half">
+                <label>Monthly Salary</label>
+                <input id="monthlySalary" type="number" min="0" step="1" />
+              </div>
+              <div class="field half">
+                <label>Bonus / Month</label>
+                <input id="monthlyBonus" type="number" min="0" step="1" />
+              </div>
+              <div class="field half">
+                <label>Rental Income / Month</label>
+                <input id="monthlyRentalIncome" type="number" min="0" step="1" />
+              </div>
+              <div class="field half">
+                <label>Other Income / Month</label>
+                <input id="monthlyOtherIncome" type="number" min="0" step="1" />
+              </div>
+            </div>
+
+            <div class="panel" style="margin-top:14px">
+              <h3 style="margin-bottom:8px">Pension / Social Security Options</h3>
+
+              <div class="radio-group">
+                <div class="radio-card">
+                  <label>
+                    <input type="radio" name="pensionMode" value="monthly" id="pensionModeMonthly" />
+                    <span>Monthly pension income</span>
+                  </label>
+                  <div class="desc">
+                    Use regular monthly pension and optionally monthly social security.
+                    These are treated as retirement income streams.
+                  </div>
+                </div>
+
+                <div class="radio-card">
+                  <label>
+                    <input type="radio" name="pensionMode" value="lumpSum" id="pensionModeLumpSum" />
+                    <span>Lump sum pension at retirement</span>
+                  </label>
+                  <div class="desc">
+                    Add a lump sum pension value to total retirement assets at retirement age.
+                    This does not count as monthly income before retirement.
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-grid" style="margin-top:14px">
+                <div class="field half">
+                  <label>Social Security / Month</label>
+                  <input id="socialSecurityMonthly" type="number" min="0" step="1" />
+                </div>
+
+                <div class="field half">
+                  <label>Pension / Month</label>
+                  <input id="pensionMonthly" type="number" min="0" step="1" />
+                </div>
+
+                <div class="field half">
+                  <label>Pension Lump Sum</label>
+                  <input id="pensionLumpSum" type="number" min="0" step="1" />
+                </div>
+
+                <div class="field half">
+                  <label>Lump Sum Pays Out At Age</label>
+                  <input id="pensionLumpSumAge" type="number" min="0" step="1" />
+                </div>
+              </div>
+
+              <div class="inline-help">
+                If lump sum mode is selected, the amount will be added to projected retirement assets in the year retirement payout occurs.
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btn primary" id="saveIncomeBtn">Save Income</button>
+            </div>
+
+            <div class="panel" style="margin-top:14px">
+              <strong>Calculated Monthly Income:</strong>
+              <span id="calculatedIncomeValue" style="margin-left:8px">$0</span>
+            </div>
+          </section>
+
+          <section class="tab-panel" id="expenses-panel">
+            <h3>Expenses</h3>
+            <div class="form-grid">
+              <div class="field half">
+                <label>Housing / Month</label>
+                <input id="monthlyHousing" type="number" min="0" step="1" />
+              </div>
+              <div class="field half">
+                <label>Food / Month</label>
+                <input id="monthlyFood" type="number" min="0" step="1" />
+              </div>
+              <div class="field half">
+                <label>Transportation / Month</label>
+                <input id="monthlyTransportation" type="number" min="0" step="1" />
+              </div>
+              <div class="field half">
+                <label>Healthcare / Month</label>
+                <input id="monthlyHealthcare" type="number" min="0" step="1" />
+              </div>
+              <div class="field half">
+                <label>Debt Payments / Month</label>
+                <input id="monthlyDebtPayments" type="number" min="0" step="1" />
+              </div>
+              <div class="field half">
+                <label>Other Expenses / Month</label>
+                <input id="monthlyOtherExpenses" type="number" min="0" step="1" />
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btn primary" id="saveExpensesBtn">Save Expenses</button>
+            </div>
+
+            <div class="panel" style="margin-top:14px">
+              <strong>Calculated Monthly Expenses:</strong>
+              <span id="calculatedExpensesValue" style="margin-left:8px">$0</span>
+            </div>
+          </section>
+
+          <section class="tab-panel" id="goals-panel">
+            <h3>Goals</h3>
+            <div class="form-grid">
+              <div class="field half">
+                <label>Goal Name</label>
+                <input id="newGoalName" type="text" placeholder="e.g. Emergency Fund" />
+              </div>
+              <div class="field half">
+                <label>Target Amount</label>
+                <input id="newGoalTarget" type="number" min="0" step="1" placeholder="25000" />
+              </div>
+              <div class="field half">
+                <label>Current Amount</label>
+                <input id="newGoalCurrent" type="number" min="0" step="1" placeholder="8000" />
+              </div>
+              <div class="field half">
+                <label>Monthly Contribution</label>
+                <input id="newGoalContribution" type="number" min="0" step="1" placeholder="500" />
+              </div>
+              <div class="field full">
+                <label>Goal Notes</label>
+                <textarea id="newGoalNotes" placeholder="Add any notes about this goal..."></textarea>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btn primary" id="addGoalBtn">Add Goal</button>
+              <button class="btn secondary" id="saveGoalsBtn">Save Goals</button>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Goal</th>
+                    <th>Target</th>
+                    <th>Current</th>
+                    <th>Contribution / Mo</th>
+                    <th>Progress</th>
+                    <th>Years to Goal</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="goalsTableBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <div class="card span-12">
+          <h3>Scenario Comparison</h3>
+          <div class="actions">
+            <button class="btn primary" id="addScenarioBtn">Add Scenario</button>
+            <button class="btn secondary" id="exportComparisonBtn">Export Comparison</button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Scenario</th>
+                  <th>Retirement Age</th>
+                  <th>Projected Assets</th>
+                  <th>Monthly Income</th>
+                  <th>Depletion Age</th>
+                  <th>Score</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="scenarioTableBody"></tbody>
+            </table>
+          </div>
+
+          <div style="margin-top:16px" class="panel">
+            <h3>Selected Scenario</h3>
+            <div class="two-col">
+              <div>
+                <p class="muted small" id="selectedScenarioDetails"></p>
+              </div>
+              <div>
+                <span id="selectedScenarioStatus" class="status warning"><span class="dot"></span>Moderate</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card span-12" id="assistant-panel">
+          <h3>AI Financial Assistant</h3>
+          <textarea id="aiPrompt" placeholder='Try: "Can I retire at 62?" or "What happens if I save $500 more per month?"'></textarea>
+          <div class="actions">
+            <button class="btn primary">Ask AI</button>
+            <button class="btn ghost">Explain Projection</button>
+            <button class="btn ghost">Summarize Plan</button>
+          </div>
+          <p class="muted small" style="margin-top:12px">
+            AI should explain results from the calculation engine, not replace it.
+          </p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const STORAGE_KEYS = {
+      profile: "fp_profile_v3",
+      accounts: "fp_accounts_v3",
+      income: "fp_income_v3",
+      expenses: "fp_expenses_v3",
+      goals: "fp_goals_v3",
+      scenarios: "fp_scenarios_v3",
+      selectedScenario: "fp_selected_scenario_v3"
+    };
+
+    const defaultProfile = {
+      firstName: "John",
+      lastName: "Doe",
+      currentAge: 45,
+      retirementAge: 67,
+      lifeExpectancy: 95,
+      inflationRate: 2.5,
+      expectedAnnualReturn: 6,
+      retirementSpendingAnnual: 85000
+    };
+
+    const defaultIncome = {
+      monthlySalary: 10000,
+      monthlyBonus: 500,
+      monthlyRentalIncome: 0,
+      monthlyOtherIncome: 0,
+      socialSecurityMonthly: 3200,
+      pensionMonthly: 2100,
+      pensionMode: "monthly", // monthly | lumpSum
+      pensionLumpSum: 150000,
+      pensionLumpSumAge: 67
+    };
+
+    const defaultExpenses = {
+      monthlyHousing: 2500,
+      monthlyFood: 900,
+      monthlyTransportation: 700,
+      monthlyHealthcare: 450,
+      monthlyDebtPayments: 500,
+      monthlyOtherExpenses: 600
+    };
+
+    const defaultAccounts = [
+      {
+        id: uuid(),
+        name: "401(k)",
+        type: "401k",
+        balance: 250000,
+        annualContribution: 14000,
+        expectedReturn: 6,
+        taxAdvantaged: true
+      },
+      {
+        id: uuid(),
+        name: "Roth IRA",
+        type: "roth",
+        balance: 45000,
+        annualContribution: 7000,
+        expectedReturn: 7,
+        taxAdvantaged: true
+      }
+    ];
+
+    const defaultGoals = [
+      {
+        id: uuid(),
+        name: "Emergency Fund",
+        targetAmount: 25000,
+        currentAmount: 8000,
+        monthlyContribution: 500,
+        notes: "Target 6 months of expenses."
+      }
+    ];
+
+    const defaultScenarios = [
+      {
+        id: uuid(),
+        name: "Current Plan",
+        retirementAge: 67,
+        currentSavings: 295000,
+        monthlyContribution: 1800,
+        employerContributionMonthly: 600,
+        expectedAnnualReturn: 6,
+        annualContributionIncrease: 0,
+        retirementSpendingAnnual: 85000,
+        socialSecurityMonthly: 3200,
+        pensionMonthly: 2100,
+        pensionMode: "monthly",
+        pensionLumpSum: 150000,
+        pensionLumpSumAge: 67,
+        currentAge: 45
+      }
+    ];
+
+    function uuid() {
+      return (window.crypto && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : "id-" + Math.random().toString(36).slice(2, 11);
+    }
+
+    function loadFromLocalStorage(key, fallback) {
+      const raw = localStorage.getItem(key);
+      if (!raw) return fallback;
+      try { return JSON.parse(raw); } catch { return fallback; }
+    }
+
+    function saveToLocalStorage(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function showMessage(text) {
+      const area = document.getElementById("messageArea");
+      area.innerHTML = `<div class="message">${text}</div>`;
+      clearTimeout(showMessage._t);
+      showMessage._t = setTimeout(() => area.innerHTML = "", 2200);
+    }
+
+    function clamp(n, min, max) {
+      return Math.max(min, Math.min(n, max));
+    }
+
+    function currency(value) {
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0
+      }).format(value || 0);
+    }
+
+    function percent(value) {
+      return `${Number(value || 0).toFixed(1)}%`;
+    }
+
+    function setStatusElement(el, score) {
+      el.className = "status";
+      if (score >= 75) {
+        el.classList.add("success");
+        el.innerHTML = '<span class="dot"></span>On Track';
+      } else if (score >= 50) {
+        el.classList.add("warning");
+        el.innerHTML = '<span class="dot"></span>Watch';
+      } else {
+        el.classList.add("danger");
+        el.innerHTML = '<span class="dot"></span>At Risk';
+      }
+    }
+
+    let profile = loadFromLocalStorage(STORAGE_KEYS.profile, defaultProfile);
+    let income = loadFromLocalStorage(STORAGE_KEYS.income, defaultIncome);
+    let expenses = loadFromLocalStorage(STORAGE_KEYS.expenses, defaultExpenses);
+    let accounts = loadFromLocalStorage(STORAGE_KEYS.accounts, defaultAccounts);
+    let goals = loadFromLocalStorage(STORAGE_KEYS.goals, defaultGoals);
+    let scenarios = loadFromLocalStorage(STORAGE_KEYS.scenarios, defaultScenarios);
+    let selectedScenarioId = loadFromLocalStorage(STORAGE_KEYS.selectedScenario, scenarios[0].id);
+
+    function calculateAccountsTotal() {
+      return accounts.reduce((sum, a) => sum + Number(a.balance || 0), 0);
+    }
+
+    function calculateAnnualAccountContributions() {
+      return accounts.reduce((sum, a) => sum + Number(a.annualContribution || 0), 0);
+    }
+
+    function calculateMonthlyIncome() {
+      return [
+        income.monthlySalary,
+        income.monthlyBonus,
+        income.monthlyRentalIncome,
+        income.monthlyOtherIncome,
+        income.pensionMode === "monthly" ? income.socialSecurityMonthly : 0,
+        income.pensionMode === "monthly" ? income.pensionMonthly : 0
+      ].reduce((sum, v) => sum + Number(v || 0), 0);
+    }
+
+    function calculateMonthlyExpenses() {
+      return Object.values(expenses).reduce((sum, v) => sum + Number(v || 0), 0);
+    }
+
+    function buildProjectionInput() {
+      return {
+        currentAge: profile.currentAge,
+        retirementAge: profile.retirementAge,
+        lifeExpectancy: profile.lifeExpectancy,
+        currentSavings: calculateAccountsTotal(),
+        monthlyContribution: calculateAnnualAccountContributions() / 12,
+        expectedAnnualReturn: profile.expectedAnnualReturn,
+        inflationRate: profile.inflationRate,
+        retirementSpendingAnnual: profile.retirementSpendingAnnual,
+        socialSecurityMonthly: income.pensionMode === "monthly" ? Number(income.socialSecurityMonthly || 0) : 0,
+        pensionMonthly: income.pensionMode === "monthly" ? Number(income.pensionMonthly || 0) : 0,
+        pensionMode: income.pensionMode,
+        pensionLumpSum: Number(income.pensionLumpSum || 0),
+        pensionLumpSumAge: Number(income.pensionLumpSumAge || profile.retirementAge)
+      };
+    }
+
+    function calculateProjectionFromState() {
+      const p = buildProjectionInput();
+      const yearsToRetirement = Math.max(0, p.retirementAge - p.currentAge);
+      const monthlyRate = Math.pow(1 + p.expectedAnnualReturn / 100, 1 / 12) - 1;
+
+      let balance = p.currentSavings;
+
+      for (let year = 0; year < yearsToRetirement; year++) {
+        for (let month = 0; month < 12; month++) {
+          balance = balance * (1 + monthlyRate) + p.monthlyContribution;
+        }
+      }
+
+      // Lump sum pension gets added at retirement age
+      if (p.pensionMode === "lumpSum" && p.pensionLumpSum > 0) {
+        const payoutAge = Math.max(p.retirementAge, p.pensionLumpSumAge);
+        if (payoutAge <= p.retirementAge) {
+          balance += p.pensionLumpSum;
+        } else {
+          // if payout is after retirement age, grow until payout age and then add
+          const extraYears = payoutAge - p.retirementAge;
+          for (let year = 0; year < extraYears; year++) {
+            for (let month = 0; month < 12; month++) {
+              balance = balance * (1 + monthlyRate);
+            }
+          }
+          balance += p.pensionLumpSum;
+        }
+      }
+
+      const projectedAssetsAtRetirement = Math.max(0, balance);
+
+      const retirementIncomeMonthly =
+        (p.pensionMode === "monthly" ? p.socialSecurityMonthly + p.pensionMonthly : p.socialSecurityMonthly);
+
+      const projectedMonthlyIncome = retirementIncomeMonthly + projectedAssetsAtRetirement * 0.0035;
+      const projectedAnnualIncome = projectedMonthlyIncome * 12;
+
+      const projectedAnnualExpenses =
+        p.retirementSpendingAnnual * Math.pow(1 + p.inflationRate / 100, yearsToRetirement);
+
+      const incomeGapAnnual = projectedAnnualExpenses - projectedAnnualIncome;
+      const incomeGapMonthly = incomeGapAnnual / 12;
+
+      let depletionAge = p.lifeExpectancy;
+      const annualWithdrawal = Math.max(0, projectedAnnualExpenses - retirementIncomeMonthly * 12);
+
+      if (projectedAssetsAtRetirement > 0) {
+        let age = p.retirementAge;
+        let asset = projectedAssetsAtRetirement;
+        while (asset > 0 && age < 110) {
+          asset = asset * 1.04 - annualWithdrawal;
+          age++;
+          if (asset <= 0) break;
+        }
+        depletionAge = age;
+      }
+
+      const readinessRatio = projectedAnnualIncome / Math.max(1, projectedAnnualExpenses);
+      const savingsRatio = projectedAssetsAtRetirement / Math.max(1, projectedAnnualExpenses * 25);
+      const score = clamp(Math.round(readinessRatio * 55 + savingsRatio * 45), 0, 100);
+
+      return {
+        yearsToRetirement,
+        projectedAssetsAtRetirement,
+        projectedMonthlyIncome,
+        projectedAnnualIncome,
+        projectedAnnualExpenses,
+        incomeGapAnnual,
+        incomeGapMonthly,
+        depletionAge,
+        retirementReadinessScore: score
+      };
+    }
+
+    function scenarioProjection(scenario) {
+      const currentSavings = calculateAccountsTotal();
+      const monthlyContribution = calculateAnnualAccountContributions() / 12;
+      const yearsToRetirement = Math.max(0, scenario.retirementAge - scenario.currentAge);
+      const monthlyRate = Math.pow(1 + scenario.expectedAnnualReturn / 100, 1 / 12) - 1;
+
+      let balance = currentSavings;
+
+      for (let year = 0; year < yearsToRetirement; year++) {
+        for (let month = 0; month < 12; month++) {
+          balance = balance * (1 + monthlyRate) + monthlyContribution;
+        }
+      }
+
+      if (scenario.pensionMode === "lumpSum" && Number(scenario.pensionLumpSum || 0) > 0) {
+        const payoutAge = Math.max(scenario.retirementAge, Number(scenario.pensionLumpSumAge || scenario.retirementAge));
+        if (payoutAge <= scenario.retirementAge) {
+          balance += Number(scenario.pensionLumpSum || 0);
+        } else {
+          const extraYears = payoutAge - scenario.retirementAge;
+          for (let year = 0; year < extraYears; year++) {
+            for (let month = 0; month < 12; month++) {
+              balance = balance * (1 + monthlyRate);
+            }
+          }
+          balance += Number(scenario.pensionLumpSum || 0);
+        }
+      }
+
+      const retirementIncomeMonthly =
+        scenario.pensionMode === "monthly"
+          ? Number(scenario.socialSecurityMonthly || 0) + Number(scenario.pensionMonthly || 0)
+          : Number(scenario.socialSecurityMonthly || 0);
+
+      const projectedAssetsAtRetirement = Math.max(0, balance);
+      const projectedMonthlyIncome = retirementIncomeMonthly + projectedAssetsAtRetirement * 0.0035;
+      const projectedAnnualIncome = projectedMonthlyIncome * 12;
+      const projectedAnnualExpenses = Number(scenario.retirementSpendingAnnual || 0) * Math.pow(1 + profile.inflationRate / 100, yearsToRetirement);
+      const incomeGapAnnual = projectedAnnualExpenses - projectedAnnualIncome;
+
+      let depletionAge = scenario.currentAge + 110;
+      let asset = projectedAssetsAtRetirement;
+      let age = scenario.retirementAge;
+      const annualWithdrawal = Math.max(0, projectedAnnualExpenses - retirementIncomeMonthly * 12);
+
+      while (asset > 0 && age < 110) {
+        asset = asset * 1.04 - annualWithdrawal;
+        age++;
+        if (asset <= 0) break;
+      }
+      depletionAge = age;
+
+      const readinessRatio = projectedAnnualIncome / Math.max(1, projectedAnnualExpenses);
+      const savingsRatio = projectedAssetsAtRetirement / Math.max(1, projectedAnnualExpenses * 25);
+      const score = clamp(Math.round(readinessRatio * 55 + savingsRatio * 45), 0, 100);
+
+      return {
+        projectedAssetsAtRetirement,
+        projectedMonthlyIncome,
+        projectedAnnualIncome,
+        projectedAnnualExpenses,
+        incomeGapAnnual,
+        depletionAge,
+        retirementReadinessScore: score
+      };
+    }
+
+    function populateInputs() {
+      document.getElementById("monthlySalary").value = income.monthlySalary;
+      document.getElementById("monthlyBonus").value = income.monthlyBonus;
+      document.getElementById("monthlyRentalIncome").value = income.monthlyRentalIncome;
+      document.getElementById("monthlyOtherIncome").value = income.monthlyOtherIncome;
+      document.getElementById("socialSecurityMonthly").value = income.socialSecurityMonthly;
+      document.getElementById("pensionMonthly").value = income.pensionMonthly;
+      document.getElementById("pensionLumpSum").value = income.pensionLumpSum;
+      document.getElementById("pensionLumpSumAge").value = income.pensionLumpSumAge;
+      document.getElementById("pensionModeMonthly").checked = income.pensionMode === "monthly";
+      document.getElementById("pensionModeLumpSum").checked = income.pensionMode === "lumpSum";
+
+      document.getElementById("monthlyHousing").value = expenses.monthlyHousing;
+      document.getElementById("monthlyFood").value = expenses.monthlyFood;
+      document.getElementById("monthlyTransportation").value = expenses.monthlyTransportation;
+      document.getElementById("monthlyHealthcare").value = expenses.monthlyHealthcare;
+      document.getElementById("monthlyDebtPayments").value = expenses.monthlyDebtPayments;
+      document.getElementById("monthlyOtherExpenses").value = expenses.monthlyOtherExpenses;
+    }
+
+    function updateDashboard() {
+      const proj = calculateProjectionFromState();
+      const monthlyIncome = calculateMonthlyIncome();
+      const monthlyExpenses = calculateMonthlyExpenses();
+      const cashFlow = monthlyIncome - monthlyExpenses;
+      const savingsRate = monthlyIncome > 0 ? (calculateAnnualAccountContributions() / (monthlyIncome * 12)) * 100 : 0;
+
+      document.getElementById("netWorthValue").textContent = currency(calculateAccountsTotal());
+      document.getElementById("cashFlowValue").textContent = currency(cashFlow);
+      document.getElementById("savingsRateValue").textContent = percent(savingsRate);
+      document.getElementById("readinessValue").textContent = proj.retirementReadinessScore + "%";
+
+      document.getElementById("monthlyIncomeSummary").textContent = `Projected monthly income: ${currency(proj.projectedMonthlyIncome)}`;
+      document.getElementById("annualExpensesSummary").textContent = `Projected annual expenses: ${currency(proj.projectedAnnualExpenses)}`;
+      document.getElementById("incomeGapSummary").textContent = `Income gap: ${currency(proj.incomeGapAnnual)}`;
+      document.getElementById("depletionAgeSummary").textContent = `Depletion age: ${proj.depletionAge}`;
+
+      setStatusElement(document.getElementById("readinessStatus"), proj.retirementReadinessScore);
+      document.getElementById("calculatedIncomeValue").textContent = currency(monthlyIncome);
+      document.getElementById("calculatedExpensesValue").textContent = currency(monthlyExpenses);
+    }
+
+    function accountTypeOptions(selectedType) {
+      const types = ["401k","ira","roth","brokerage","hsa","cash","other"];
+      return types.map(type => `<option value="${type}" ${type === selectedType ? "selected" : ""}>${prettyType(type)}</option>`).join("");
+    }
+
+    function prettyType(type) {
+      return ({
+        "401k":"401(k)",
+        "ira":"IRA",
+        "roth":"Roth IRA",
+        "brokerage":"Brokerage",
+        "hsa":"HSA",
+        "cash":"Cash / Savings",
+        "other":"Other"
+      })[type] || type;
+    }
+
+    function renderAccounts() {
+      const tbody = document.getElementById("accountsTableBody");
+      tbody.innerHTML = "";
+
+      accounts.forEach((account) => {
+        const projected1Yr = Number(account.balance || 0) * (1 + Number(account.expectedReturn || 0) / 100) + Number(account.annualContribution || 0);
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><input type="text" value="${escapeHtml(account.name)}" data-id="${account.id}" data-field="name" class="row-input"></td>
+          <td>
+            <select data-id="${account.id}" data-field="type" class="row-input">
+              ${accountTypeOptions(account.type)}
+            </select>
+          </td>
+          <td><input type="number" value="${account.balance}" data-id="${account.id}" data-field="balance" class="row-input"></td>
+          <td><input type="number" value="${account.annualContribution}" data-id="${account.id}" data-field="annualContribution" class="row-input"></td>
+          <td><input type="number" step="0.1" value="${account.expectedReturn}" data-id="${account.id}" data-field="expectedReturn" class="row-input"></td>
+          <td>
+            <select data-id="${account.id}" data-field="taxAdvantaged" class="row-input">
+              <option value="true" ${account.taxAdvantaged ? "selected" : ""}>Yes</option>
+              <option value="false" ${!account.taxAdvantaged ? "selected" : ""}>No</option>
+            </select>
+          </td>
+          <td>${currency(projected1Yr)}</td>
+          <td><button class="btn ghost" data-delete-account="${account.id}">Delete</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      tbody.querySelectorAll(".row-input").forEach((input) => {
+        input.addEventListener("input", handleAccountChange);
+        input.addEventListener("change", handleAccountChange);
+      });
+
+      tbody.querySelectorAll("[data-delete-account]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          accounts = accounts.filter(a => a.id !== btn.getAttribute("data-delete-account"));
+          saveToLocalStorage(STORAGE_KEYS.accounts, accounts);
+          refreshAll();
+          showMessage("Account deleted.");
+        });
+      });
+    }
+
+    function renderGoals() {
+      const tbody = document.getElementById("goalsTableBody");
+      tbody.innerHTML = "";
+
+      goals.forEach((goal) => {
+        const progress = goal.targetAmount > 0 ? clamp((goal.currentAmount / goal.targetAmount) * 100, 0, 100) : 0;
+        const yearsToGoal = goal.monthlyContribution > 0
+          ? Math.max(0, (goal.targetAmount - goal.currentAmount) / (goal.monthlyContribution * 12))
+          : Infinity;
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><input type="text" value="${escapeHtml(goal.name)}" data-id="${goal.id}" data-field="name" class="goal-input"></td>
+          <td><input type="number" value="${goal.targetAmount}" data-id="${goal.id}" data-field="targetAmount" class="goal-input"></td>
+          <td><input type="number" value="${goal.currentAmount}" data-id="${goal.id}" data-field="currentAmount" class="goal-input"></td>
+          <td><input type="number" value="${goal.monthlyContribution}" data-id="${goal.id}" data-field="monthlyContribution" class="goal-input"></td>
+          <td>${progress.toFixed(0)}%</td>
+          <td>${yearsToGoal === Infinity ? "N/A" : yearsToGoal.toFixed(1)}</td>
+          <td><button class="btn ghost" data-delete-goal="${goal.id}">Delete</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      tbody.querySelectorAll(".goal-input").forEach((input) => {
+        input.addEventListener("input", handleGoalChange);
+      });
+
+      tbody.querySelectorAll("[data-delete-goal]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          goals = goals.filter(g => g.id !== btn.getAttribute("data-delete-goal"));
+          saveToLocalStorage(STORAGE_KEYS.goals, goals);
+          refreshAll();
+          showMessage("Goal deleted.");
+        });
+      });
+    }
+
+    function renderScenarios() {
+      const tbody = document.getElementById("scenarioTableBody");
+      tbody.innerHTML = "";
+
+      scenarios.forEach((scenario) => {
+        const proj = scenarioProjection(scenario);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><input type="text" value="${escapeHtml(scenario.name)}" data-sid="${scenario.id}" data-key="name" class="scenario-input"></td>
+          <td><input type="number" value="${scenario.retirementAge}" data-sid="${scenario.id}" data-key="retirementAge" class="scenario-input" style="width:90px"></td>
+          <td>${currency(proj.projectedAssetsAtRetirement)}</td>
+          <td>${currency(proj.projectedMonthlyIncome)}</td>
+          <td>${proj.depletionAge}</td>
+          <td>${proj.retirementReadinessScore}/100</td>
+          <td><button class="btn ghost" data-select-scenario="${scenario.id}">Select</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      tbody.querySelectorAll(".scenario-input").forEach((input) => {
+        input.addEventListener("input", handleScenarioChange);
+      });
+
+      tbody.querySelectorAll("[data-select-scenario]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          selectedScenarioId = btn.getAttribute("data-select-scenario");
+          saveToLocalStorage(STORAGE_KEYS.selectedScenario, selectedScenarioId);
+          refreshAll();
+          showMessage("Scenario selected.");
+        });
+      });
+
+      const selected = scenarios.find(s => s.id === selectedScenarioId) || scenarios[0];
+      if (selected) {
+        const proj = scenarioProjection(selected);
+        document.getElementById("selectedScenarioDetails").innerHTML = `
+          Retirement age: ${selected.retirementAge}<br>
+          Projected assets: ${currency(proj.projectedAssetsAtRetirement)}<br>
+          Monthly income: ${currency(proj.projectedMonthlyIncome)}
+        `;
+        setStatusElement(document.getElementById("selectedScenarioStatus"), proj.retirementReadinessScore);
+      }
+    }
+
+    function handleAccountChange(e) {
+      const id = e.target.getAttribute("data-id");
+      const field = e.target.getAttribute("data-field");
+      accounts = accounts.map(account => {
+        if (account.id !== id) return account;
+        let value = e.target.value;
+        if (field === "taxAdvantaged") value = value === "true";
+        else if (e.target.type === "number") value = Number(value);
+        return { ...account, [field]: value };
+      });
+      saveToLocalStorage(STORAGE_KEYS.accounts, accounts);
+      refreshAll();
+    }
+
+    function handleGoalChange(e) {
+      const id = e.target.getAttribute("data-id");
+      const field = e.target.getAttribute("data-field");
+      goals = goals.map(goal => {
+        if (goal.id !== id) return goal;
+        let value = e.target.value;
+        if (e.target.type === "number") value = Number(value);
+        return { ...goal, [field]: value };
+      });
+      saveToLocalStorage(STORAGE_KEYS.goals, goals);
+      refreshAll();
+    }
+
+    function handleScenarioChange(e) {
+      const sid = e.target.getAttribute("data-sid");
+      const key = e.target.getAttribute("data-key");
+      const value = e.target.type === "number" ? Number(e.target.value) : e.target.value;
+      scenarios = scenarios.map(s => s.id === sid ? { ...s, [key]: value } : s);
+      saveToLocalStorage(STORAGE_KEYS.scenarios, scenarios);
+      refreshAll();
+    }
+
+    function handleIncomeChange() {
+      income = {
+        monthlySalary: Number(document.getElementById("monthlySalary").value || 0),
+        monthlyBonus: Number(document.getElementById("monthlyBonus").value || 0),
+        monthlyRentalIncome: Number(document.getElementById("monthlyRentalIncome").value || 0),
+        monthlyOtherIncome: Number(document.getElementById("monthlyOtherIncome").value || 0),
+        socialSecurityMonthly: Number(document.getElementById("socialSecurityMonthly").value || 0),
+        pensionMonthly: Number(document.getElementById("pensionMonthly").value || 0),
+        pensionMode: document.getElementById("pensionModeLumpSum").checked ? "lumpSum" : "monthly",
+        pensionLumpSum: Number(document.getElementById("pensionLumpSum").value || 0),
+        pensionLumpSumAge: Number(document.getElementById("pensionLumpSumAge").value || 0)
+      };
+      saveToLocalStorage(STORAGE_KEYS.income, income);
+      refreshAll(false);
+    }
+
+    function handleExpensesChange() {
+      expenses = {
+        monthlyHousing: Number(document.getElementById("monthlyHousing").value || 0),
+        monthlyFood: Number(document.getElementById("monthlyFood").value || 0),
+        monthlyTransportation: Number(document.getElementById("monthlyTransportation").value || 0),
+        monthlyHealthcare: Number(document.getElementById("monthlyHealthcare").value || 0),
+        monthlyDebtPayments: Number(document.getElementById("monthlyDebtPayments").value || 0),
+        monthlyOtherExpenses: Number(document.getElementById("monthlyOtherExpenses").value || 0)
+      };
+      saveToLocalStorage(STORAGE_KEYS.expenses, expenses);
+      refreshAll(false);
+    }
+
+    function addAccount() {
+      const account = {
+        id: uuid(),
+        name: document.getElementById("newAccountName").value || "New Account",
+        type: document.getElementById("newAccountType").value,
+        balance: Number(document.getElementById("newAccountBalance").value || 0),
+        annualContribution: Number(document.getElementById("newAccountContribution").value || 0),
+        expectedReturn: Number(document.getElementById("newAccountReturn").value || 0),
+        taxAdvantaged: document.getElementById("newAccountTaxAdvantaged").value === "yes"
+      };
+      accounts.push(account);
+      saveToLocalStorage(STORAGE_KEYS.accounts, accounts);
+      clearAccountForm();
+      refreshAll();
+      showMessage("Account added and saved.");
+    }
+
+    function addGoal() {
+      const goal = {
+        id: uuid(),
+        name: document.getElementById("newGoalName").value || "New Goal",
+        targetAmount: Number(document.getElementById("newGoalTarget").value || 0),
+        currentAmount: Number(document.getElementById("newGoalCurrent").value || 0),
+        monthlyContribution: Number(document.getElementById("newGoalContribution").value || 0),
+        notes: document.getElementById("newGoalNotes").value || ""
+      };
+      goals.push(goal);
+      saveToLocalStorage(STORAGE_KEYS.goals, goals);
+      clearGoalForm();
+      refreshAll();
+      showMessage("Goal added and saved.");
+    }
+
+    function addScenario() {
+      const scenario = {
+        id: uuid(),
+        name: `Scenario ${scenarios.length + 1}`,
+        retirementAge: profile.retirementAge,
+        currentSavings: calculateAccountsTotal(),
+        monthlyContribution: calculateAnnualAccountContributions() / 12,
+        employerContributionMonthly: 0,
+        expectedAnnualReturn: profile.expectedAnnualReturn,
+        annualContributionIncrease: 0,
+        retirementSpendingAnnual: profile.retirementSpendingAnnual,
+        socialSecurityMonthly: income.socialSecurityMonthly,
+        pensionMonthly: income.pensionMonthly,
+        pensionMode: income.pensionMode,
+        pensionLumpSum: income.pensionLumpSum,
+        pensionLumpSumAge: income.pensionLumpSumAge,
+        currentAge: profile.currentAge
+      };
+      scenarios.push(scenario);
+      selectedScenarioId = scenario.id;
+      saveToLocalStorage(STORAGE_KEYS.scenarios, scenarios);
+      saveToLocalStorage(STORAGE_KEYS.selectedScenario, selectedScenarioId);
+      refreshAll();
+      showMessage("Scenario added.");
+    }
+
+    function clearAccountForm() {
+      document.getElementById("newAccountName").value = "";
+      document.getElementById("newAccountBalance").value = "";
+      document.getElementById("newAccountContribution").value = "";
+      document.getElementById("newAccountReturn").value = "";
+    }
+
+    function clearGoalForm() {
+      document.getElementById("newGoalName").value = "";
+      document.getElementById("newGoalTarget").value = "";
+      document.getElementById("newGoalCurrent").value = "";
+      document.getElementById("newGoalContribution").value = "";
+      document.getElementById("newGoalNotes").value = "";
+    }
+
+    function exportJSON(filename, data) {
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function saveAll() {
+      saveToLocalStorage(STORAGE_KEYS.profile, profile);
+      saveToLocalStorage(STORAGE_KEYS.income, income);
+      saveToLocalStorage(STORAGE_KEYS.expenses, expenses);
+      saveToLocalStorage(STORAGE_KEYS.accounts, accounts);
+      saveToLocalStorage(STORAGE_KEYS.goals, goals);
+      saveToLocalStorage(STORAGE_KEYS.scenarios, scenarios);
+      saveToLocalStorage(STORAGE_KEYS.selectedScenario, selectedScenarioId);
+    }
+
+    function refreshAll(showToast = true) {
+      populateInputs();
+      updateDashboard();
+      renderAccounts();
+      renderGoals();
+      renderScenarios();
+      if (showToast) {
+        document.getElementById("summaryUpdated").textContent = "Updated live";
+      }
+    }
+
+    function bindTabs() {
+      document.querySelectorAll("[data-panel]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const panel = btn.getAttribute("data-panel");
+
+          document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+
+          document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+          document.getElementById(panel + "-panel").classList.add("active");
+
+          document.querySelectorAll(".nav-btn").forEach(n => {
+            n.classList.toggle("active", n.getAttribute("data-tab") === panel);
+          });
+
+          document.querySelector(".topbar h2").textContent =
+            panel.charAt(0).toUpperCase() + panel.slice(1);
+        });
+      });
+
+      document.querySelectorAll(".nav-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const tab = btn.getAttribute("data-tab");
+          const linked = document.querySelector(`.tab-btn[data-panel="${tab}"]`);
+          if (linked) linked.click();
+          if (tab === "assistant") {
+            document.querySelector(".topbar h2").textContent = "AI Assistant";
+          }
+        });
+      });
+    }
+
+    function bindLiveInputs() {
+      [
+        "monthlySalary","monthlyBonus","monthlyRentalIncome","monthlyOtherIncome",
+        "socialSecurityMonthly","pensionMonthly","pensionLumpSum","pensionLumpSumAge"
+      ].forEach(id => {
+        document.getElementById(id).addEventListener("input", handleIncomeChange);
+      });
+
+      ["pensionModeMonthly","pensionModeLumpSum"].forEach(id => {
+        document.getElementById(id).addEventListener("change", handleIncomeChange);
+      });
+
+      ["monthlyHousing","monthlyFood","monthlyTransportation","monthlyHealthcare","monthlyDebtPayments","monthlyOtherExpenses"].forEach(id => {
+        document.getElementById(id).addEventListener("input", handleExpensesChange);
+      });
+    }
+
+    document.getElementById("addAccountBtn").addEventListener("click", addAccount);
+    document.getElementById("saveAccountsBtn").addEventListener("click", () => {
+      saveToLocalStorage(STORAGE_KEYS.accounts, accounts);
+      showMessage("Accounts saved.");
+    });
+
+    document.getElementById("saveIncomeBtn").addEventListener("click", () => {
+      handleIncomeChange();
+      showMessage("Income saved.");
+    });
+
+    document.getElementById("saveExpensesBtn").addEventListener("click", () => {
+      handleExpensesChange();
+      showMessage("Expenses saved.");
+    });
+
+    document.getElementById("addGoalBtn").addEventListener("click", addGoal);
+    document.getElementById("saveGoalsBtn").addEventListener("click", () => {
+      saveToLocalStorage(STORAGE_KEYS.goals, goals);
+      showMessage("Goals saved.");
+    });
+
+    document.getElementById("addScenarioBtn").addEventListener("click", addScenario);
+
+    document.getElementById("saveAllBtn").addEventListener("click", () => {
+      saveAll();
+      showMessage("All data saved.");
+    });
+
+    document.getElementById("exportPlanBtn").addEventListener("click", () => {
+      saveAll();
+      exportJSON("financial-plan.json", {
+        profile,
+        income,
+        expenses,
+        accounts,
+        goals,
+        scenarios,
+        projections: calculateProjectionFromState()
+      });
+      showMessage("Plan exported.");
+    });
+
+    document.getElementById("exportComparisonBtn").addEventListener("click", () => {
+      const comparison = scenarios.map(s => {
+        const proj = scenarioProjection(s);
+        return {
+          name: s.name,
+          retirementAge: s.retirementAge,
+          projectedAssets: proj.projectedAssetsAtRetirement,
+          projectedMonthlyIncome: proj.projectedMonthlyIncome,
+          depletionAge: proj.depletionAge,
+          score: proj.retirementReadinessScore
+        };
+      });
+      exportJSON("scenario-comparison.json", comparison);
+      showMessage("Comparison exported.");
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      profile = structuredClone(defaultProfile);
+      income = structuredClone(defaultIncome);
+      expenses = structuredClone(defaultExpenses);
+      accounts = structuredClone(defaultAccounts);
+      goals = structuredClone(defaultGoals);
+      scenarios = structuredClone(defaultScenarios);
+      selectedScenarioId = scenarios[0].id;
+
+      Object.values(STORAGE_KEYS).forEach(k => localStorage.removeItem(k));
+      refreshAll();
+      showMessage("Reset to defaults.");
+    });
+
+    function init() {
+      populateInputs();
+      bindTabs();
+      bindLiveInputs();
+      refreshAll();
+
+      // Ensure correct initial tab labels and state
+      document.getElementById("pensionModeMonthly").checked = income.pensionMode === "monthly";
+      document.getElementById("pensionModeLumpSum").checked = income.pensionMode === "lumpSum";
+    }
+
+    init();
+  </script>
+</body>
+</html>
