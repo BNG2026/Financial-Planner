@@ -42,6 +42,24 @@
       background:#fff;
     }
 
+    input[type="checkbox"]{
+      width:auto;
+      padding:0;
+      accent-color:var(--primary);
+    }
+
+    [hidden]{
+      display:none !important;
+    }
+
+    .checkbox-label{
+      display:flex;
+      align-items:center;
+      gap:9px;
+      min-height:44px;
+      cursor:pointer;
+    }
+
     input:focus,textarea:focus,select:focus{
       outline:none;
       border-color:#93c5fd;
@@ -450,7 +468,8 @@
 
       <div class="nav-group">
         <div class="nav-title">Navigation</div>
-        <button class="nav-btn active" data-tab="dashboard"><span class="nav-dot"></span>Overview</button>
+        <button class="nav-btn active" data-tab="dashboard"><span class="nav-dot"></span>Dashboard</button>
+        <button class="nav-btn" data-tab="profile"><span class="nav-dot"></span>Profile</button>
         <button class="nav-btn" data-tab="accounts"><span class="nav-dot"></span>Accounts</button>
         <button class="nav-btn" data-tab="income"><span class="nav-dot"></span>Income</button>
         <button class="nav-btn" data-tab="expenses"><span class="nav-dot"></span>Expenses</button>
@@ -470,7 +489,7 @@
     <main class="main">
       <div class="topbar">
         <div>
-          <h2>Overview</h2>
+          <h2>Dashboard</h2>
           <p class="sub">Track accounts, cash flow, goals, and retirement projections in real time.</p>
         </div>
         <div class="toolbar">
@@ -539,6 +558,7 @@
         <div class="card span-12">
           <div class="tabs">
             <button class="tab-btn active" data-panel="dashboard">Overview</button>
+            <button class="tab-btn" data-panel="profile">Profile</button>
             <button class="tab-btn" data-panel="accounts">Accounts</button>
             <button class="tab-btn" data-panel="income">Income</button>
             <button class="tab-btn" data-panel="expenses">Expenses</button>
@@ -553,6 +573,45 @@
             <p class="muted small">
               Update any field in Accounts, Income, Expenses, or Goals and the calculator will recalculate immediately.
             </p>
+          </section>
+
+          <section class="tab-panel" id="profile-panel">
+            <h3>Profile</h3>
+            <p class="muted small" style="margin-top:-4px">
+              Set your current income and retirement-income target.
+            </p>
+
+            <div class="form-grid">
+              <div class="field half">
+                <label>Current Age</label>
+                <input id="profileCurrentAge" type="number" min="18" max="110" step="1" />
+              </div>
+              <div class="field half">
+                <label>Current Annual Income</label>
+                <input id="profileCurrentAnnualIncome" type="number" min="0" step="1000" />
+              </div>
+              <div class="field half">
+                <label>Target Percent of Monthly Retirement Income</label>
+                <input id="profileTargetRetirementIncomePercent" type="number" min="0" max="200" step="1" />
+              </div>
+              <div class="field half">
+                <label>Target Monthly Retirement Income</label>
+                <input id="profileTargetMonthlyRetirementIncome" type="text" readonly />
+              </div>
+              <div class="field half">
+                <label>Estimated Tax Rate</label>
+                <input id="profileEstimatedTaxRate" type="number" min="0" max="100" step="0.01" readonly />
+                <label class="checkbox-label">
+                  <input id="profileTaxRateOverride" type="checkbox" />
+                  Override
+                </label>
+              </div>
+              <div class="field full">
+                <p class="muted small" style="margin:0">
+                  Estimated effective federal income-tax rate using 2026 single-filer brackets and the Current Annual Income above. Excludes credits, itemized deductions, payroll taxes, and state or local taxes.
+                </p>
+              </div>
+            </div>
           </section>
 
           <section class="tab-panel" id="accounts-panel">
@@ -579,12 +638,30 @@
                 </select>
               </div>
               <div class="field half">
+                <label>Contribution Tax Treatment</label>
+                <input id="newAccountTaxTreatment" type="text" value="Pre-tax" readonly />
+              </div>
+              <div class="field half">
                 <label>Current Balance</label>
                 <input id="newAccountBalance" type="number" min="0" step="1" placeholder="250000" />
               </div>
               <div class="field half">
-                <label>Annual Contribution</label>
-                <input id="newAccountContribution" type="number" min="0" step="1" placeholder="14000" />
+                <label class="checkbox-label">
+                  <input id="newAccountContinuingContributions" type="checkbox" />
+                  Continuing contributions
+                </label>
+              </div>
+              <div class="field full" id="newAccountContributionFields" hidden>
+                <div class="form-grid">
+                  <div class="field half">
+                    <label>Annual Contribution</label>
+                    <input id="newAccountContribution" type="number" min="0" step="1" placeholder="14000" />
+                  </div>
+                  <div class="field half">
+                    <label>Employer Contribution / Year</label>
+                    <input id="newAccountEmployerContribution" type="number" min="0" step="1" placeholder="6000" />
+                  </div>
+                </div>
               </div>
               <div class="field half">
                 <label>Expected Annual Return %</label>
@@ -610,8 +687,11 @@
                   <tr>
                     <th>Name</th>
                     <th>Type</th>
+                    <th>Tax Treatment</th>
                     <th>Balance</th>
-                    <th>Contribution / Yr</th>
+                    <th>Continuing</th>
+                    <th>Your Contribution / Yr</th>
+                    <th>Employer / Yr</th>
                     <th>Return %</th>
                     <th>Tax Adv.</th>
                     <th>Projected 1 Yr</th>
@@ -814,6 +894,8 @@
                   <th>Scenario</th>
                   <th>Retirement Age</th>
                   <th>Projected Assets</th>
+                  <th>Before-Tax Assets</th>
+                  <th>After-Tax Assets</th>
                   <th>Monthly Income</th>
                   <th>Depletion Age</th>
                   <th>Score</th>
@@ -872,7 +954,15 @@
       lifeExpectancy: 95,
       inflationRate: 2.5,
       expectedAnnualReturn: 6,
-      retirementSpendingAnnual: 85000
+      retirementSpendingAnnual: 85000,
+      currentAnnualIncome: 144000,
+      targetRetirementIncomePercent: 80,
+      estimatedTaxRateOverrideEnabled: false,
+      estimatedTaxRateOverride: null
+    };
+
+    const STATE_TAX_BRACKETS_2026 = {
+      AL:{deduction:3000,brackets:[[0,2],[500,4],[3000,5]]},AK:{deduction:0,brackets:[]},AZ:{deduction:8350,brackets:[[0,2.5]]},AR:{deduction:2470,brackets:[[0,2],[4600,3.9]]},CA:{deduction:5540,brackets:[[0,1],[11079,2],[26264,4],[41452,6],[57542,8],[72724,9.3],[371479,10.3],[445771,11.3],[742953,12.3],[1000000,13.3]]},CO:{deduction:16100,brackets:[[0,4.4]]},CT:{deduction:0,brackets:[[0,2],[10000,4.5],[50000,5.5],[100000,6],[200000,6.5],[250000,6.9],[500000,6.99]]},DE:{deduction:3250,brackets:[[2000,2.2],[5000,3.9],[10000,4.8],[20000,5.2],[25000,5.55],[60000,6.6]]},FL:{deduction:0,brackets:[]},GA:{deduction:12000,brackets:[[0,5.19]]},HI:{deduction:4400,brackets:[[0,1.4],[9600,3.2],[14400,5.5],[19200,6.4],[24000,6.8],[36000,7.2],[48000,7.6],[125000,7.9],[175000,8.25],[225000,9],[275000,10],[325000,11]]},ID:{deduction:16100,brackets:[[4811,5.3]]},IL:{deduction:0,brackets:[[0,4.95]]},IN:{deduction:0,brackets:[[0,2.95]]},IA:{deduction:16100,brackets:[[0,3.8]]},KS:{deduction:3605,brackets:[[0,5.2],[23000,5.58]]},KY:{deduction:3360,brackets:[[0,3.5]]},LA:{deduction:12875,brackets:[[0,3]]},ME:{deduction:8350,brackets:[[0,5.8],[27399,6.75],[64849,7.15]]},MD:{deduction:3350,brackets:[[0,2],[1000,3],[2000,4],[3000,4.75],[100000,5],[125000,5.25],[150000,5.5],[250000,5.75],[500000,6.25],[1000000,6.5]]},MA:{deduction:0,brackets:[[0,5],[1083150,9]]},MI:{deduction:0,brackets:[[0,4.25]]},MN:{deduction:15300,brackets:[[0,5.35],[33310,6.8],[109430,7.85],[203150,9.85]]},MS:{deduction:2300,brackets:[[10000,4]]},MO:{deduction:16100,brackets:[[1348,2],[2696,2.5],[4044,3],[5392,3.5],[6740,4],[8088,4.5],[9436,4.7]]},MT:{deduction:16100,brackets:[[0,4.7],[47500,5.65]]},NE:{deduction:8850,brackets:[[0,2.46],[4130,3.51],[24760,4.55]]},NV:{deduction:0,brackets:[]},NH:{deduction:0,brackets:[]},NJ:{deduction:0,brackets:[[0,1.4],[20000,1.75],[35000,3.5],[40000,5.525],[75000,6.37],[500000,8.97],[1000000,10.75]]},NM:{deduction:16100,brackets:[[0,1.5],[5500,3.2],[16500,4.3],[33500,4.7],[66500,4.9],[210000,5.9]]},NY:{deduction:8000,brackets:[[0,3.9],[8500,4.4],[11700,5.15],[13900,5.4],[80650,5.9],[215400,6.85],[1077550,9.65],[5000000,10.3],[25000000,10.9]]},NC:{deduction:12750,brackets:[[0,3.99]]},ND:{deduction:16100,brackets:[[48475,1.95],[244825,2.5]]},OH:{deduction:0,brackets:[[26050,2.75]]},OK:{deduction:6350,brackets:[[3750,2.5],[4900,3.5],[7200,4.5]]},OR:{deduction:2910,brackets:[[0,4.75],[4550,6.75],[11400,8.75],[125000,9.9]]},PA:{deduction:0,brackets:[[0,3.07]]},RI:{deduction:11200,brackets:[[0,3.75],[82050,4.75],[186450,5.99]]},SC:{deduction:8350,brackets:[[0,0],[3640,3],[18230,6]]},SD:{deduction:0,brackets:[]},TN:{deduction:0,brackets:[]},TX:{deduction:0,brackets:[]},UT:{deduction:0,brackets:[[0,4.5]]},VT:{deduction:7650,brackets:[[0,3.35],[49400,6.6],[119700,7.6],[249700,8.75]]},VA:{deduction:8750,brackets:[[0,2],[3000,3],[5000,5],[17000,5.75]]},WA:{deduction:0,brackets:[]},WV:{deduction:0,brackets:[[0,2.22],[10000,2.96],[25000,3.33],[40000,4.44],[60000,4.82]]},WI:{deduction:13960,brackets:[[0,3.5],[15110,4.4],[51950,5.3],[332720,7.65]]},WY:{deduction:0,brackets:[]},DC:{deduction:16100,brackets:[[0,4],[10000,6],[40000,6.5],[60000,8.5],[250000,9.25],[500000,9.75],[1000000,10.75]]}
     };
 
     const defaultIncome = {
@@ -943,8 +1033,7 @@
         pensionMonthly: 2100,
         pensionMode: "monthly",
         pensionLumpSum: 150000,
-        pensionLumpSumAge: 67,
-        currentAge: 45
+        pensionLumpSumAge: 67
       }
     ];
 
@@ -1014,7 +1103,11 @@
     }
 
     function calculateAnnualAccountContributions() {
-      return accounts.reduce((sum, a) => sum + Number(a.annualContribution || 0), 0);
+      return accounts.reduce((sum, a) => {
+        const continuing = a.continuingContributions ?? (Number(a.annualContribution || 0) > 0 || Number(a.employerContribution || 0) > 0);
+        if (!continuing) return sum;
+        return sum + Number(a.annualContribution || 0) + Number(a.employerContribution || 0);
+      }, 0);
     }
 
     function calculateMonthlyIncome() {
@@ -1053,39 +1146,45 @@
     function calculateProjectionFromState() {
       const p = buildProjectionInput();
       const yearsToRetirement = Math.max(0, p.retirementAge - p.currentAge);
-      const monthlyRate = Math.pow(1 + p.expectedAnnualReturn / 100, 1 / 12) - 1;
+      const annualRate = p.expectedAnnualReturn / 100;
+      const taxBuckets = calculateAccountTaxBuckets();
 
-      let balance = p.currentSavings;
+      let beforeTaxBalance = taxBuckets.beforeTaxBalance;
+      let taxedAccountBalance = taxBuckets.afterTaxBalance;
+      const beforeTaxAnnualContribution = taxBuckets.beforeTaxAnnualContribution;
+      const taxedAnnualContribution = taxBuckets.afterTaxAnnualContribution;
 
       for (let year = 0; year < yearsToRetirement; year++) {
-        for (let month = 0; month < 12; month++) {
-          balance = balance * (1 + monthlyRate) + p.monthlyContribution;
-        }
+        beforeTaxBalance = beforeTaxBalance * (1 + annualRate) + beforeTaxAnnualContribution;
+        taxedAccountBalance = taxedAccountBalance * (1 + annualRate) + taxedAnnualContribution;
       }
 
       // Lump sum pension gets added at retirement age
       if (p.pensionMode === "lumpSum" && p.pensionLumpSum > 0) {
         const payoutAge = Math.max(p.retirementAge, p.pensionLumpSumAge);
         if (payoutAge <= p.retirementAge) {
-          balance += p.pensionLumpSum;
+          beforeTaxBalance += p.pensionLumpSum;
         } else {
           // if payout is after retirement age, grow until payout age and then add
           const extraYears = payoutAge - p.retirementAge;
           for (let year = 0; year < extraYears; year++) {
-            for (let month = 0; month < 12; month++) {
-              balance = balance * (1 + monthlyRate);
-            }
+            beforeTaxBalance = beforeTaxBalance * (1 + annualRate);
+            taxedAccountBalance = taxedAccountBalance * (1 + annualRate);
           }
-          balance += p.pensionLumpSum;
+          beforeTaxBalance += p.pensionLumpSum;
         }
       }
 
-      const projectedAssetsAtRetirement = Math.max(0, balance);
+      const projectedBeforeTaxAssets = Math.max(0, beforeTaxBalance);
+      const projectedTaxedAccountAssets = Math.max(0, taxedAccountBalance);
+      const estimatedTaxRate = getActiveEstimatedTaxRate();
+      const projectedAfterTaxAssets = projectedTaxedAccountAssets + projectedBeforeTaxAssets * (1 - estimatedTaxRate / 100);
+      const projectedAssetsAtRetirement = projectedBeforeTaxAssets + projectedTaxedAccountAssets;
 
       const retirementIncomeMonthly =
         (p.pensionMode === "monthly" ? p.socialSecurityMonthly + p.pensionMonthly : p.socialSecurityMonthly);
 
-      const projectedMonthlyIncome = retirementIncomeMonthly + projectedAssetsAtRetirement * 0.0035;
+      const projectedMonthlyIncome = retirementIncomeMonthly + projectedAfterTaxAssets * 0.0035;
       const projectedAnnualIncome = projectedMonthlyIncome * 12;
 
       const projectedAnnualExpenses =
@@ -1097,9 +1196,9 @@
       let depletionAge = p.lifeExpectancy;
       const annualWithdrawal = Math.max(0, projectedAnnualExpenses - retirementIncomeMonthly * 12);
 
-      if (projectedAssetsAtRetirement > 0) {
+      if (projectedAfterTaxAssets > 0) {
         let age = p.retirementAge;
-        let asset = projectedAssetsAtRetirement;
+        let asset = projectedAfterTaxAssets;
         while (asset > 0 && age < 110) {
           asset = asset * 1.04 - annualWithdrawal;
           age++;
@@ -1109,12 +1208,15 @@
       }
 
       const readinessRatio = projectedAnnualIncome / Math.max(1, projectedAnnualExpenses);
-      const savingsRatio = projectedAssetsAtRetirement / Math.max(1, projectedAnnualExpenses * 25);
+      const savingsRatio = projectedAfterTaxAssets / Math.max(1, projectedAnnualExpenses * 25);
       const score = clamp(Math.round(readinessRatio * 55 + savingsRatio * 45), 0, 100);
 
       return {
         yearsToRetirement,
         projectedAssetsAtRetirement,
+        projectedBeforeTaxAssets,
+        projectedAfterTaxAssets,
+        estimatedTaxRate,
         projectedMonthlyIncome,
         projectedAnnualIncome,
         projectedAnnualExpenses,
@@ -1126,31 +1228,48 @@
     }
 
     function scenarioProjection(scenario) {
-      const currentSavings = calculateAccountsTotal();
-      const monthlyContribution = calculateAnnualAccountContributions() / 12;
-      const yearsToRetirement = Math.max(0, scenario.retirementAge - scenario.currentAge);
-      const monthlyRate = Math.pow(1 + scenario.expectedAnnualReturn / 100, 1 / 12) - 1;
+      const currentAge = Number(profile.currentAge || 0);
+      const retirementAge = Number(scenario.retirementAge || currentAge);
+      const yearsToRetirement = Math.max(0, retirementAge - currentAge);
+      const fallbackAnnualRate = Number(scenario.expectedAnnualReturn || 0) / 100;
 
-      let balance = currentSavings;
+      // Project each account independently so the return entered on the Accounts
+      // tab drives its result. Contributions are added at year-end, matching the
+      // annual schedule used by Calculator.net's IRA and Roth IRA calculators.
+      const projectedAccounts = accounts.reduce((totals, account) => {
+        const treatment = accountTaxTreatment(account.type);
+        const continuing = account.continuingContributions ??
+          (Number(account.annualContribution || 0) > 0 || Number(account.employerContribution || 0) > 0);
+        const annualContribution = continuing
+          ? Number(account.annualContribution || 0) + Number(account.employerContribution || 0)
+          : 0;
+        const enteredReturn = Number(account.expectedReturn);
+        const annualRate = Number.isFinite(enteredReturn) ? enteredReturn / 100 : fallbackAnnualRate;
+        let balance = Number(account.balance || 0);
 
-      for (let year = 0; year < yearsToRetirement; year++) {
-        for (let month = 0; month < 12; month++) {
-          balance = balance * (1 + monthlyRate) + monthlyContribution;
+        for (let year = 0; year < yearsToRetirement; year++) {
+          balance = balance * (1 + annualRate) + annualContribution;
         }
-      }
+
+        if (treatment === "preTax") totals.beforeTaxBalance += balance;
+        else totals.afterTaxBalance += balance;
+        return totals;
+      }, { beforeTaxBalance: 0, afterTaxBalance: 0 });
+
+      let beforeTaxBalance = projectedAccounts.beforeTaxBalance;
+      let afterTaxBalance = projectedAccounts.afterTaxBalance;
 
       if (scenario.pensionMode === "lumpSum" && Number(scenario.pensionLumpSum || 0) > 0) {
-        const payoutAge = Math.max(scenario.retirementAge, Number(scenario.pensionLumpSumAge || scenario.retirementAge));
-        if (payoutAge <= scenario.retirementAge) {
-          balance += Number(scenario.pensionLumpSum || 0);
+        const payoutAge = Math.max(retirementAge, Number(scenario.pensionLumpSumAge || retirementAge));
+        if (payoutAge <= retirementAge) {
+          beforeTaxBalance += Number(scenario.pensionLumpSum || 0);
         } else {
-          const extraYears = payoutAge - scenario.retirementAge;
+          const extraYears = payoutAge - retirementAge;
           for (let year = 0; year < extraYears; year++) {
-            for (let month = 0; month < 12; month++) {
-              balance = balance * (1 + monthlyRate);
-            }
+            beforeTaxBalance = beforeTaxBalance * (1 + fallbackAnnualRate);
+            afterTaxBalance = afterTaxBalance * (1 + fallbackAnnualRate);
           }
-          balance += Number(scenario.pensionLumpSum || 0);
+          beforeTaxBalance += Number(scenario.pensionLumpSum || 0);
         }
       }
 
@@ -1159,15 +1278,19 @@
           ? Number(scenario.socialSecurityMonthly || 0) + Number(scenario.pensionMonthly || 0)
           : Number(scenario.socialSecurityMonthly || 0);
 
-      const projectedAssetsAtRetirement = Math.max(0, balance);
-      const projectedMonthlyIncome = retirementIncomeMonthly + projectedAssetsAtRetirement * 0.0035;
+      const projectedBeforeTaxAssets = Math.max(0, beforeTaxBalance);
+      const projectedTaxedAccountAssets = Math.max(0, afterTaxBalance);
+      const estimatedTaxRate = getActiveEstimatedTaxRate();
+      const projectedAfterTaxAssets = projectedTaxedAccountAssets + projectedBeforeTaxAssets * (1 - estimatedTaxRate / 100);
+      const projectedAssetsAtRetirement = projectedBeforeTaxAssets + projectedTaxedAccountAssets;
+      const projectedMonthlyIncome = retirementIncomeMonthly + projectedAfterTaxAssets * 0.0035;
       const projectedAnnualIncome = projectedMonthlyIncome * 12;
       const projectedAnnualExpenses = Number(scenario.retirementSpendingAnnual || 0) * Math.pow(1 + profile.inflationRate / 100, yearsToRetirement);
       const incomeGapAnnual = projectedAnnualExpenses - projectedAnnualIncome;
 
-      let depletionAge = scenario.currentAge + 110;
-      let asset = projectedAssetsAtRetirement;
-      let age = scenario.retirementAge;
+      let depletionAge = profile.lifeExpectancy;
+      let asset = projectedAfterTaxAssets;
+      let age = retirementAge;
       const annualWithdrawal = Math.max(0, projectedAnnualExpenses - retirementIncomeMonthly * 12);
 
       while (asset > 0 && age < 110) {
@@ -1178,11 +1301,15 @@
       depletionAge = age;
 
       const readinessRatio = projectedAnnualIncome / Math.max(1, projectedAnnualExpenses);
-      const savingsRatio = projectedAssetsAtRetirement / Math.max(1, projectedAnnualExpenses * 25);
+      const savingsRatio = projectedAfterTaxAssets / Math.max(1, projectedAnnualExpenses * 25);
       const score = clamp(Math.round(readinessRatio * 55 + savingsRatio * 45), 0, 100);
 
       return {
         projectedAssetsAtRetirement,
+        projectedBeforeTaxAssets,
+        projectedAfterTaxAssets,
+        projectedTaxedAccountAssets,
+        estimatedTaxRate,
         projectedMonthlyIncome,
         projectedAnnualIncome,
         projectedAnnualExpenses,
@@ -1193,6 +1320,13 @@
     }
 
     function populateInputs() {
+      document.getElementById("profileCurrentAge").value = profile.currentAge;
+      document.getElementById("profileCurrentAnnualIncome").value = profile.currentAnnualIncome ?? Number(income.monthlySalary || 0) * 12;
+      document.getElementById("profileTargetRetirementIncomePercent").value = profile.targetRetirementIncomePercent ?? 80;
+      document.getElementById("profileTaxRateOverride").checked = profile.estimatedTaxRateOverrideEnabled === true;
+      document.getElementById("profileEstimatedTaxRate").readOnly = profile.estimatedTaxRateOverrideEnabled !== true;
+      updateProfileRetirementIncomeTarget();
+
       document.getElementById("monthlySalary").value = income.monthlySalary;
       document.getElementById("monthlyBonus").value = income.monthlyBonus;
       document.getElementById("monthlyRentalIncome").value = income.monthlyRentalIncome;
@@ -1210,6 +1344,82 @@
       document.getElementById("monthlyHealthcare").value = expenses.monthlyHealthcare;
       document.getElementById("monthlyDebtPayments").value = expenses.monthlyDebtPayments;
       document.getElementById("monthlyOtherExpenses").value = expenses.monthlyOtherExpenses;
+    }
+
+    function updateProfileRetirementIncomeTarget() {
+      const annualIncome = Number(document.getElementById("profileCurrentAnnualIncome").value || 0);
+      const targetPercent = Number(document.getElementById("profileTargetRetirementIncomePercent").value || 0);
+      const targetMonthlyIncome = annualIncome / 12 * targetPercent / 100;
+      document.getElementById("profileTargetMonthlyRetirementIncome").value = currency(targetMonthlyIncome);
+      updateEstimatedFederalTaxRate(annualIncome);
+    }
+
+    function estimateFederalIncomeTax(income) {
+      const standardDeduction = 16100;
+      const brackets = [[0,10],[12400,12],[50400,22],[105700,24],[201775,32],[256225,35],[640600,37]];
+      const taxableIncome = Math.max(0, income - standardDeduction);
+      return brackets.reduce((tax, bracket, index) => {
+        const bracketStart = bracket[0];
+        const nextStart = brackets[index + 1]?.[0] ?? taxableIncome;
+        const taxableInBracket = Math.max(0, Math.min(taxableIncome, nextStart) - bracketStart);
+        return tax + taxableInBracket * bracket[1] / 100;
+      }, 0);
+    }
+
+    function updateEstimatedFederalTaxRate(currentAnnualIncome) {
+      const output = document.getElementById("profileEstimatedTaxRate");
+      const effectiveRate = calculateFederalEffectiveTaxRate(currentAnnualIncome);
+      const displayedRate = profile.estimatedTaxRateOverrideEnabled
+        ? Number(profile.estimatedTaxRateOverride ?? effectiveRate)
+        : effectiveRate;
+      output.value = displayedRate.toFixed(2);
+    }
+
+    function calculateFederalEffectiveTaxRate(currentAnnualIncome) {
+      const estimatedTax = estimateFederalIncomeTax(currentAnnualIncome);
+      return currentAnnualIncome > 0 ? estimatedTax / currentAnnualIncome * 100 : 0;
+    }
+
+    function getActiveEstimatedTaxRate() {
+      if (profile.estimatedTaxRateOverrideEnabled) {
+        return clamp(Number(profile.estimatedTaxRateOverride || 0), 0, 100);
+      }
+      return calculateFederalEffectiveTaxRate(Number(profile.currentAnnualIncome || 0));
+    }
+
+    function handleTaxRateOverrideToggle(e) {
+      const enabled = e.target.checked;
+      const defaultRate = calculateFederalEffectiveTaxRate(Number(profile.currentAnnualIncome || 0));
+      profile.estimatedTaxRateOverrideEnabled = enabled;
+      if (enabled && profile.estimatedTaxRateOverride == null) {
+        profile.estimatedTaxRateOverride = defaultRate;
+      }
+      document.getElementById("profileEstimatedTaxRate").readOnly = !enabled;
+      saveToLocalStorage(STORAGE_KEYS.profile, profile);
+      updateEstimatedFederalTaxRate(Number(profile.currentAnnualIncome || 0));
+      updateDashboard();
+      renderScenarios();
+    }
+
+    function handleTaxRateOverrideInput(e) {
+      if (!profile.estimatedTaxRateOverrideEnabled) return;
+      profile.estimatedTaxRateOverride = clamp(Number(e.target.value || 0), 0, 100);
+      saveToLocalStorage(STORAGE_KEYS.profile, profile);
+      updateDashboard();
+      renderScenarios();
+    }
+
+    function handleProfileChange() {
+      profile = {
+        ...profile,
+        currentAge: Number(document.getElementById("profileCurrentAge").value || 0),
+        currentAnnualIncome: Number(document.getElementById("profileCurrentAnnualIncome").value || 0),
+        targetRetirementIncomePercent: Number(document.getElementById("profileTargetRetirementIncomePercent").value || 0)
+      };
+      saveToLocalStorage(STORAGE_KEYS.profile, profile);
+      updateProfileRetirementIncomeTarget();
+      updateDashboard();
+      renderScenarios();
     }
 
     function updateDashboard() {
@@ -1251,12 +1461,47 @@
       })[type] || type;
     }
 
+    function accountTaxTreatment(type) {
+      return ["401k", "ira", "hsa"].includes(type) ? "preTax" : "taxed";
+    }
+
+    function accountTaxTreatmentLabel(type) {
+      return accountTaxTreatment(type) === "preTax" ? "Pre-tax" : "Taxed";
+    }
+
+    function calculateAccountTaxBuckets() {
+      return accounts.reduce((totals, account) => {
+        const treatment = accountTaxTreatment(account.type);
+        const continuing = account.continuingContributions ?? (Number(account.annualContribution || 0) > 0 || Number(account.employerContribution || 0) > 0);
+        const annualContribution = continuing
+          ? Number(account.annualContribution || 0) + Number(account.employerContribution || 0)
+          : 0;
+        if (treatment === "preTax") {
+          totals.beforeTaxBalance += Number(account.balance || 0);
+          totals.beforeTaxAnnualContribution += annualContribution;
+        } else {
+          totals.afterTaxBalance += Number(account.balance || 0);
+          totals.afterTaxAnnualContribution += annualContribution;
+        }
+        return totals;
+      }, {
+        beforeTaxBalance: 0,
+        afterTaxBalance: 0,
+        beforeTaxAnnualContribution: 0,
+        afterTaxAnnualContribution: 0
+      });
+    }
+
     function renderAccounts() {
       const tbody = document.getElementById("accountsTableBody");
       tbody.innerHTML = "";
 
       accounts.forEach((account) => {
-        const projected1Yr = Number(account.balance || 0) * (1 + Number(account.expectedReturn || 0) / 100) + Number(account.annualContribution || 0);
+        const continuing = account.continuingContributions ?? (Number(account.annualContribution || 0) > 0 || Number(account.employerContribution || 0) > 0);
+        const annualContributions = continuing
+          ? Number(account.annualContribution || 0) + Number(account.employerContribution || 0)
+          : 0;
+        const projected1Yr = Number(account.balance || 0) * (1 + Number(account.expectedReturn || 0) / 100) + annualContributions;
         const row = document.createElement("tr");
         row.innerHTML = `
           <td><input type="text" value="${escapeHtml(account.name)}" data-id="${account.id}" data-field="name" class="row-input"></td>
@@ -1265,8 +1510,11 @@
               ${accountTypeOptions(account.type)}
             </select>
           </td>
+          <td>${accountTaxTreatmentLabel(account.type)}</td>
           <td><input type="number" value="${account.balance}" data-id="${account.id}" data-field="balance" class="row-input"></td>
-          <td><input type="number" value="${account.annualContribution}" data-id="${account.id}" data-field="annualContribution" class="row-input"></td>
+          <td><input type="checkbox" ${continuing ? "checked" : ""} data-id="${account.id}" data-field="continuingContributions" class="row-input"></td>
+          <td><input type="number" value="${account.annualContribution || 0}" data-id="${account.id}" data-field="annualContribution" class="row-input" ${continuing ? "" : "hidden"}></td>
+          <td><input type="number" value="${account.employerContribution || 0}" data-id="${account.id}" data-field="employerContribution" class="row-input" ${continuing ? "" : "hidden"}></td>
           <td><input type="number" step="0.1" value="${account.expectedReturn}" data-id="${account.id}" data-field="expectedReturn" class="row-input"></td>
           <td>
             <select data-id="${account.id}" data-field="taxAdvantaged" class="row-input">
@@ -1343,6 +1591,8 @@
           <td><input type="text" value="${escapeHtml(scenario.name)}" data-sid="${scenario.id}" data-key="name" class="scenario-input"></td>
           <td><input type="number" value="${scenario.retirementAge}" data-sid="${scenario.id}" data-key="retirementAge" class="scenario-input" style="width:90px"></td>
           <td>${currency(proj.projectedAssetsAtRetirement)}</td>
+          <td>${currency(proj.projectedBeforeTaxAssets)}</td>
+          <td>${currency(proj.projectedAfterTaxAssets)}</td>
           <td>${currency(proj.projectedMonthlyIncome)}</td>
           <td>${proj.depletionAge}</td>
           <td>${proj.retirementReadinessScore}/100</td>
@@ -1370,6 +1620,9 @@
         document.getElementById("selectedScenarioDetails").innerHTML = `
           Retirement age: ${selected.retirementAge}<br>
           Projected assets: ${currency(proj.projectedAssetsAtRetirement)}<br>
+          Before-tax projected assets: ${currency(proj.projectedBeforeTaxAssets)}<br>
+          After-tax projected assets: ${currency(proj.projectedAfterTaxAssets)}<br>
+          Estimated tax rate applied: ${proj.estimatedTaxRate.toFixed(2)}%<br>
           Monthly income: ${currency(proj.projectedMonthlyIncome)}
         `;
         setStatusElement(document.getElementById("selectedScenarioStatus"), proj.retirementReadinessScore);
@@ -1382,9 +1635,12 @@
       accounts = accounts.map(account => {
         if (account.id !== id) return account;
         let value = e.target.value;
-        if (field === "taxAdvantaged") value = value === "true";
+        if (field === "continuingContributions") value = e.target.checked;
+        else if (field === "taxAdvantaged") value = value === "true";
         else if (e.target.type === "number") value = Number(value);
-        return { ...account, [field]: value };
+        const updatedAccount = { ...account, [field]: value };
+        if (field === "type") updatedAccount.contributionTaxTreatment = accountTaxTreatment(value);
+        return updatedAccount;
       });
       saveToLocalStorage(STORAGE_KEYS.accounts, accounts);
       refreshAll();
@@ -1442,12 +1698,16 @@
     }
 
     function addAccount() {
+      const continuingContributions = document.getElementById("newAccountContinuingContributions").checked;
       const account = {
         id: uuid(),
         name: document.getElementById("newAccountName").value || "New Account",
         type: document.getElementById("newAccountType").value,
+        contributionTaxTreatment: accountTaxTreatment(document.getElementById("newAccountType").value),
         balance: Number(document.getElementById("newAccountBalance").value || 0),
-        annualContribution: Number(document.getElementById("newAccountContribution").value || 0),
+        continuingContributions,
+        annualContribution: continuingContributions ? Number(document.getElementById("newAccountContribution").value || 0) : 0,
+        employerContribution: continuingContributions ? Number(document.getElementById("newAccountEmployerContribution").value || 0) : 0,
         expectedReturn: Number(document.getElementById("newAccountReturn").value || 0),
         taxAdvantaged: document.getElementById("newAccountTaxAdvantaged").value === "yes"
       };
@@ -1489,8 +1749,7 @@
         pensionMonthly: income.pensionMonthly,
         pensionMode: income.pensionMode,
         pensionLumpSum: income.pensionLumpSum,
-        pensionLumpSumAge: income.pensionLumpSumAge,
-        currentAge: profile.currentAge
+        pensionLumpSumAge: income.pensionLumpSumAge
       };
       scenarios.push(scenario);
       selectedScenarioId = scenario.id;
@@ -1503,7 +1762,10 @@
     function clearAccountForm() {
       document.getElementById("newAccountName").value = "";
       document.getElementById("newAccountBalance").value = "";
+      document.getElementById("newAccountContinuingContributions").checked = false;
       document.getElementById("newAccountContribution").value = "";
+      document.getElementById("newAccountEmployerContribution").value = "";
+      document.getElementById("newAccountContributionFields").hidden = true;
       document.getElementById("newAccountReturn").value = "";
     }
 
@@ -1588,6 +1850,12 @@
     }
 
     function bindLiveInputs() {
+      ["profileCurrentAge","profileCurrentAnnualIncome","profileTargetRetirementIncomePercent"].forEach(id => {
+        document.getElementById(id).addEventListener("input", handleProfileChange);
+      });
+      document.getElementById("profileTaxRateOverride").addEventListener("change", handleTaxRateOverrideToggle);
+      document.getElementById("profileEstimatedTaxRate").addEventListener("input", handleTaxRateOverrideInput);
+
       [
         "monthlySalary","monthlyBonus","monthlyRentalIncome","monthlyOtherIncome",
         "socialSecurityMonthly","pensionMonthly","pensionLumpSum","pensionLumpSumAge"
@@ -1605,6 +1873,12 @@
     }
 
     document.getElementById("addAccountBtn").addEventListener("click", addAccount);
+    document.getElementById("newAccountType").addEventListener("change", (e) => {
+      document.getElementById("newAccountTaxTreatment").value = accountTaxTreatmentLabel(e.target.value);
+    });
+    document.getElementById("newAccountContinuingContributions").addEventListener("change", (e) => {
+      document.getElementById("newAccountContributionFields").hidden = !e.target.checked;
+    });
     document.getElementById("saveAccountsBtn").addEventListener("click", () => {
       saveToLocalStorage(STORAGE_KEYS.accounts, accounts);
       showMessage("Accounts saved.");
@@ -1654,6 +1928,9 @@
           name: s.name,
           retirementAge: s.retirementAge,
           projectedAssets: proj.projectedAssetsAtRetirement,
+          projectedBeforeTaxAssets: proj.projectedBeforeTaxAssets,
+          projectedAfterTaxAssets: proj.projectedAfterTaxAssets,
+          estimatedTaxRate: proj.estimatedTaxRate,
           projectedMonthlyIncome: proj.projectedMonthlyIncome,
           depletionAge: proj.depletionAge,
           score: proj.retirementReadinessScore
