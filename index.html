@@ -253,17 +253,54 @@
     .span-8{grid-column:span 8}
     .span-12{grid-column:span 12}
 
-    .chart-placeholder{
+    .projection-chart-pane{
       height:260px;
-      border:1px dashed var(--border);
+      border:1px solid var(--border);
       border-radius:14px;
       display:flex;
-      align-items:center;
-      justify-content:center;
-      color:var(--muted);
+      align-items:stretch;
+      overflow:hidden;
       background:linear-gradient(180deg, #fff, #f8fafc);
-      text-align:center;
-      padding:20px;
+    }
+
+    .projection-chart-plot{
+      flex:1 1 auto;
+      min-width:0;
+      padding:10px 6px 4px 10px;
+    }
+
+    .projection-chart-plot svg{width:100%;height:100%;display:block}
+    .chart-grid-line{stroke:#e5e7eb;stroke-width:1}
+    .chart-axis-label{fill:#6b7280;font-size:11px}
+
+    .projection-legend{
+      flex:0 0 46px;
+      width:46px;
+      border-left:1px solid var(--border);
+      background:rgba(255,255,255,.94);
+      padding:12px 10px;
+      overflow:hidden;
+      transition:flex-basis .22s ease, width .22s ease, box-shadow .22s ease;
+      position:relative;
+      z-index:2;
+    }
+
+    .projection-legend:hover,
+    .projection-legend:focus-within{
+      flex-basis:205px;
+      width:205px;
+      box-shadow:-10px 0 22px rgba(15,23,42,.08);
+    }
+
+    .legend-heading{font-size:.75rem;font-weight:700;color:var(--muted);white-space:nowrap;margin-bottom:10px}
+    .legend-item{display:grid;grid-template-columns:14px 1fr;gap:8px;align-items:center;margin:9px 0;white-space:nowrap}
+    .legend-swatch{width:12px;height:12px;border-radius:3px}
+    .legend-swatch.target-line{height:0;border-radius:0;border-top:2px dotted #dc2626;background:transparent !important}
+    .legend-detail{opacity:0;transform:translateX(4px);transition:opacity .16s ease,transform .16s ease;font-size:.82rem}
+    .projection-legend:hover .legend-detail,
+    .projection-legend:focus-within .legend-detail{opacity:1;transform:none}
+    .legend-value{display:block;color:var(--muted);font-size:.75rem;margin-top:2px}
+    .chart-empty{height:100%;display:grid;place-items:center;color:var(--muted);text-align:center;padding:20px}
     }
 
     .form-grid{
@@ -538,10 +575,9 @@
 
         <div class="card span-8">
           <h3>Retirement Projection</h3>
-          <div class="chart-placeholder">
-            Projection chart placeholder
-            <br />
-            <small>Replace with charting later if desired.</small>
+          <div class="projection-chart-pane">
+            <div class="projection-chart-plot" id="retirementProjectionChart"></div>
+            <aside class="projection-legend" id="retirementProjectionLegend" aria-label="Account type chart key" tabindex="0"></aside>
           </div>
         </div>
 
@@ -897,7 +933,7 @@
                   <th>Before-Tax Assets</th>
                   <th>After-Tax Assets</th>
                   <th>Monthly Income</th>
-                  <th>Depletion Age</th>
+                  <th>Projected Longevity</th>
                   <th>Score</th>
                   <th>Action</th>
                 </tr>
@@ -911,6 +947,7 @@
             <div class="two-col">
               <div>
                 <p class="muted small" id="selectedScenarioDetails"></p>
+                <div id="selectedScenarioAssetBreakdown" class="inline-help"></div>
               </div>
               <div>
                 <span id="selectedScenarioStatus" class="status warning"><span class="dot"></span>Moderate</span>
@@ -1033,7 +1070,8 @@
         pensionMonthly: 2100,
         pensionMode: "monthly",
         pensionLumpSum: 150000,
-        pensionLumpSumAge: 67
+        pensionLumpSumAge: 67,
+        projectedLongevity: 95
       }
     ];
 
@@ -1291,6 +1329,11 @@
       let depletionAge = profile.lifeExpectancy;
       let asset = projectedAfterTaxAssets;
       let age = retirementAge;
+      const projectedLongevity = clamp(
+        Number(scenario.projectedLongevity ?? profile.lifeExpectancy),
+        retirementAge + 1,
+        110
+      );
       const annualWithdrawal = Math.max(0, projectedAnnualExpenses - retirementIncomeMonthly * 12);
 
       while (asset > 0 && age < 110) {
@@ -1302,7 +1345,10 @@
 
       const readinessRatio = projectedAnnualIncome / Math.max(1, projectedAnnualExpenses);
       const savingsRatio = projectedAfterTaxAssets / Math.max(1, projectedAnnualExpenses * 25);
-      const score = clamp(Math.round(readinessRatio * 55 + savingsRatio * 45), 0, 100);
+      const retirementYearsNeeded = Math.max(1, projectedLongevity - retirementAge);
+      const fundedYears = Math.max(0, Math.min(depletionAge, projectedLongevity) - retirementAge);
+      const longevityRatio = clamp(fundedYears / retirementYearsNeeded, 0, 1);
+      const score = clamp(Math.round(readinessRatio * 45 + savingsRatio * 35 + longevityRatio * 20), 0, 100);
 
       return {
         projectedAssetsAtRetirement,
@@ -1315,6 +1361,8 @@
         projectedAnnualExpenses,
         incomeGapAnnual,
         depletionAge,
+        projectedLongevity,
+        longevityRatio,
         retirementReadinessScore: score
       };
     }
@@ -1422,6 +1470,123 @@
       renderScenarios();
     }
 
+    function renderRetirementProjectionChart() {
+      const chart = document.getElementById("retirementProjectionChart");
+      const legend = document.getElementById("retirementProjectionLegend");
+      if (!chart || !legend) return;
+
+      const selectedScenario = scenarios.find(s => s.id === selectedScenarioId) || scenarios[0];
+      const currentAge = Number(profile.currentAge || 0);
+      const retirementAge = Math.max(currentAge, Number(selectedScenario?.retirementAge || profile.retirementAge || currentAge));
+      const years = Math.max(0, retirementAge - currentAge);
+      const colors = {
+        "401k":"#2563eb", ira:"#7c3aed", roth:"#16a34a", brokerage:"#f59e0b",
+        hsa:"#0891b2", cash:"#64748b", other:"#e11d48"
+      };
+      const typeOrder = ["401k", "ira", "roth", "brokerage", "hsa", "cash", "other"];
+      const activeTypes = typeOrder.filter(type => accounts.some(account => account.type === type));
+
+      if (!activeTypes.length) {
+        chart.innerHTML = '<div class="chart-empty">Add an account to display its projected growth.</div>';
+        legend.innerHTML = '<div class="legend-heading">KEY</div>';
+        return;
+      }
+
+      const series = Object.fromEntries(activeTypes.map(type => [type, Array(years + 1).fill(0)]));
+      accounts.forEach(account => {
+        if (!series[account.type]) return;
+        const continuing = account.continuingContributions ??
+          (Number(account.annualContribution || 0) > 0 || Number(account.employerContribution || 0) > 0);
+        const annualContribution = continuing
+          ? Number(account.annualContribution || 0) + Number(account.employerContribution || 0)
+          : 0;
+        const annualRate = Number(account.expectedReturn || 0) / 100;
+        let balance = Number(account.balance || 0);
+        series[account.type][0] += balance;
+        for (let year = 1; year <= years; year++) {
+          balance = balance * (1 + annualRate) + annualContribution;
+          series[account.type][year] += balance;
+        }
+      });
+
+      const totals = Array.from({length: years + 1}, (_, year) =>
+        activeTypes.reduce((sum, type) => sum + series[type][year], 0)
+      );
+      const retirementIncomeMonthly = selectedScenario?.pensionMode === "monthly"
+        ? Number(selectedScenario.socialSecurityMonthly || 0) + Number(selectedScenario.pensionMonthly || 0)
+        : Number(selectedScenario?.socialSecurityMonthly || 0);
+      const targetMonthlyIncome = Number(profile.currentAnnualIncome || 0) / 12 *
+        (Number(profile.targetRetirementIncomePercent || 0) / 100);
+      const requiredAfterTaxAssets = Math.max(0, targetMonthlyIncome - retirementIncomeMonthly) / 0.0035;
+      const retirementGrossAssets = totals[years] || 0;
+      const retirementAfterTaxAssets = activeTypes.reduce((sum, type) => {
+        const balance = series[type][years];
+        return sum + (accountTaxTreatment(type) === "preTax"
+          ? balance * (1 - getActiveEstimatedTaxRate() / 100)
+          : balance);
+      }, 0);
+      const netRetentionRatio = retirementGrossAssets > 0
+        ? retirementAfterTaxAssets / retirementGrossAssets
+        : 1;
+      const targetGrossAssets = requiredAfterTaxAssets / Math.max(0.01, netRetentionRatio);
+      const maxValue = Math.max(1, ...totals, targetGrossAssets);
+      const width = 700;
+      const height = 250;
+      const left = 58;
+      const right = 12;
+      const top = 12;
+      const bottom = 30;
+      const plotWidth = width - left - right;
+      const plotHeight = height - top - bottom;
+      const x = year => left + (years ? year / years : 0) * plotWidth;
+      const y = value => top + plotHeight - (value / maxValue) * plotHeight;
+      const compactCurrency = value => value >= 1000000
+        ? `$${(value / 1000000).toFixed(1)}M`
+        : `$${Math.round(value / 1000)}K`;
+
+      let svg = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Stacked retirement account growth from age ${currentAge} to ${retirementAge}">`;
+      for (let tick = 0; tick <= 4; tick++) {
+        const value = maxValue * tick / 4;
+        const tickY = y(value);
+        svg += `<line class="chart-grid-line" x1="${left}" y1="${tickY}" x2="${width-right}" y2="${tickY}"></line>`;
+        svg += `<text class="chart-axis-label" x="${left-7}" y="${tickY+4}" text-anchor="end">${compactCurrency(value)}</text>`;
+      }
+
+      const lower = Array(years + 1).fill(0);
+      activeTypes.forEach(type => {
+        const upper = lower.map((value, year) => value + series[type][year]);
+        const topPoints = upper.map((value, year) => `${x(year)},${y(value)}`).join(" ");
+        const bottomPoints = lower.map((value, year) => `${x(year)},${y(value)}`).reverse().join(" ");
+        svg += `<polygon points="${topPoints} ${bottomPoints}" fill="${colors[type]}" fill-opacity=".82" stroke="${colors[type]}" stroke-width="1"><title>${prettyType(type)}: ${currency(series[type][years])} at age ${retirementAge}</title></polygon>`;
+        upper.forEach((value, year) => lower[year] = value);
+      });
+
+      const targetY = y(targetGrossAssets);
+      svg += `<line x1="${left}" y1="${targetY}" x2="${width-right}" y2="${targetY}" stroke="#dc2626" stroke-width="2" stroke-dasharray="5 5"><title>Target retirement assets: ${currency(targetGrossAssets)}</title></line>`;
+      svg += `<text x="${width-right-4}" y="${Math.max(top+12, targetY-6)}" text-anchor="end" fill="#b91c1c" font-size="11" font-weight="700">Target ${compactCurrency(targetGrossAssets)}</text>`;
+
+      const middleAge = Math.round((currentAge + retirementAge) / 2);
+      [currentAge, middleAge, retirementAge].forEach((age, index) => {
+        const year = Math.max(0, age - currentAge);
+        const anchor = index === 0 ? "start" : index === 2 ? "end" : "middle";
+        svg += `<text class="chart-axis-label" x="${x(year)}" y="${height-8}" text-anchor="${anchor}">Age ${age}</text>`;
+      });
+      svg += `</svg>`;
+      chart.innerHTML = svg;
+
+      legend.innerHTML = `<div class="legend-heading">KEY</div>` + activeTypes.map(type => `
+        <div class="legend-item">
+          <span class="legend-swatch" style="background:${colors[type]}"></span>
+          <span class="legend-detail"><strong>${prettyType(type)}</strong><span class="legend-value">${currency(series[type][years])} at age ${retirementAge}</span></span>
+        </div>
+      `).join("") + `
+        <div class="legend-item">
+          <span class="legend-swatch target-line"></span>
+          <span class="legend-detail"><strong>Retirement goal</strong><span class="legend-value">${currency(targetGrossAssets)} gross target</span></span>
+        </div>
+      `;
+    }
+
     function updateDashboard() {
       const proj = calculateProjectionFromState();
       const monthlyIncome = calculateMonthlyIncome();
@@ -1440,6 +1605,7 @@
       document.getElementById("depletionAgeSummary").textContent = `Depletion age: ${proj.depletionAge}`;
 
       setStatusElement(document.getElementById("readinessStatus"), proj.retirementReadinessScore);
+      renderRetirementProjectionChart();
       document.getElementById("calculatedIncomeValue").textContent = currency(monthlyIncome);
       document.getElementById("calculatedExpensesValue").textContent = currency(monthlyExpenses);
     }
@@ -1594,7 +1760,7 @@
           <td>${currency(proj.projectedBeforeTaxAssets)}</td>
           <td>${currency(proj.projectedAfterTaxAssets)}</td>
           <td>${currency(proj.projectedMonthlyIncome)}</td>
-          <td>${proj.depletionAge}</td>
+          <td><input type="number" min="${Number(scenario.retirementAge) + 1}" max="110" step="1" value="${proj.projectedLongevity}" data-sid="${scenario.id}" data-key="projectedLongevity" class="scenario-input" style="width:90px" aria-label="Projected longevity for ${escapeHtml(scenario.name)}"></td>
           <td>${proj.retirementReadinessScore}/100</td>
           <td><button class="btn ghost" data-select-scenario="${scenario.id}">Select</button></td>
         `;
@@ -1602,7 +1768,7 @@
       });
 
       tbody.querySelectorAll(".scenario-input").forEach((input) => {
-        input.addEventListener("input", handleScenarioChange);
+        input.addEventListener(input.getAttribute("data-key") === "projectedLongevity" ? "change" : "input", handleScenarioChange);
       });
 
       tbody.querySelectorAll("[data-select-scenario]").forEach((btn) => {
@@ -1617,13 +1783,39 @@
       const selected = scenarios.find(s => s.id === selectedScenarioId) || scenarios[0];
       if (selected) {
         const proj = scenarioProjection(selected);
+        const projectedTaxedAssets = Math.max(0, proj.projectedAssetsAtRetirement - proj.projectedBeforeTaxAssets);
+        const estimatedRetirementTaxes = proj.projectedBeforeTaxAssets * (proj.estimatedTaxRate / 100);
+        const spendableBeforeTaxAssets = proj.projectedBeforeTaxAssets - estimatedRetirementTaxes;
         document.getElementById("selectedScenarioDetails").innerHTML = `
           Retirement age: ${selected.retirementAge}<br>
           Projected assets: ${currency(proj.projectedAssetsAtRetirement)}<br>
           Before-tax projected assets: ${currency(proj.projectedBeforeTaxAssets)}<br>
           After-tax projected assets: ${currency(proj.projectedAfterTaxAssets)}<br>
           Estimated tax rate applied: ${proj.estimatedTaxRate.toFixed(2)}%<br>
-          Monthly income: ${currency(proj.projectedMonthlyIncome)}
+          Monthly income: ${currency(proj.projectedMonthlyIncome)}<br>
+          Projected longevity target: age ${proj.projectedLongevity}<br>
+          Estimated asset depletion: ${proj.depletionAge >= 110 ? "Beyond age 110" : `age ${proj.depletionAge}`}
+        `;
+        document.getElementById("selectedScenarioAssetBreakdown").innerHTML = `
+          <strong>How the asset values are calculated</strong>
+          <p style="margin:8px 0 0">
+            <strong>Projected Assets</strong> is the gross total before retirement taxes:
+            ${currency(proj.projectedBeforeTaxAssets)} in pre-tax accounts plus
+            ${currency(projectedTaxedAssets)} in Roth/taxed accounts equals
+            ${currency(proj.projectedAssetsAtRetirement)}.
+          </p>
+          <p style="margin:8px 0 0">
+            <strong>Before-Tax Assets</strong> is only the portion held in accounts such as a
+            401(k) or Traditional IRA. Applying the ${proj.estimatedTaxRate.toFixed(2)}%
+            estimated retirement tax rate subtracts ${currency(estimatedRetirementTaxes)},
+            leaving ${currency(spendableBeforeTaxAssets)} from those accounts.
+          </p>
+          <p style="margin:8px 0 0">
+            <strong>After-Tax Assets</strong> is the estimated spendable total:
+            ${currency(spendableBeforeTaxAssets)} from pre-tax accounts after estimated taxes plus
+            ${currency(projectedTaxedAssets)} from Roth/taxed accounts equals
+            ${currency(proj.projectedAfterTaxAssets)}.
+          </p>
         `;
         setStatusElement(document.getElementById("selectedScenarioStatus"), proj.retirementReadinessScore);
       }
@@ -1749,7 +1941,8 @@
         pensionMonthly: income.pensionMonthly,
         pensionMode: income.pensionMode,
         pensionLumpSum: income.pensionLumpSum,
-        pensionLumpSumAge: income.pensionLumpSumAge
+        pensionLumpSumAge: income.pensionLumpSumAge,
+        projectedLongevity: profile.lifeExpectancy
       };
       scenarios.push(scenario);
       selectedScenarioId = scenario.id;
