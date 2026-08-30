@@ -356,6 +356,10 @@
     th{
       background:#f8fafc;
     }
+    .accounts-table{min-width:1080px}
+    .accounts-table th,.accounts-table td{white-space:nowrap;vertical-align:middle}
+    .accounts-table td:first-child{white-space:normal;min-width:150px;font-weight:600}
+    .account-actions{display:flex;gap:8px;align-items:center}
 
     .status{
       display:inline-flex;
@@ -382,6 +386,25 @@
       grid-template-columns:1fr 1fr;
       gap:16px;
     }
+
+    .scenario-charts{display:grid;gap:14px}
+    .scenario-chart-card{border:1px solid var(--border);border-radius:14px;background:#fff;padding:12px}
+    .scenario-chart-card h4{margin:0 0 3px;font-size:.95rem}
+    .scenario-chart-card .chart-note{margin:0 0 8px;color:var(--muted);font-size:.75rem}
+    .scenario-chart{height:225px}
+    .scenario-chart svg{width:100%;height:100%;display:block}
+    .scenario-chart-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:7px;font-size:.72rem;color:var(--muted)}
+    .scenario-chart-legend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--legend-color);margin-right:4px}
+    .portfolio-breakdown{display:grid;gap:12px}
+    .portfolio-breakdown-section{border:1px solid var(--border);border-radius:12px;background:#fff;padding:12px}
+    .portfolio-breakdown-section h4{margin:0 0 8px;font-size:.9rem}
+    .portfolio-flow-row{display:grid;grid-template-columns:1fr auto;gap:12px;padding:6px 0;border-bottom:1px solid #eef2f7;font-size:.84rem}
+    .portfolio-flow-row:last-child{border-bottom:0}
+    .portfolio-flow-row .amount{font-weight:700;white-space:nowrap}
+    .portfolio-flow-row.increase .amount{color:#15803d}
+    .portfolio-flow-row.decrease .amount{color:#b91c1c}
+    .portfolio-flow-row.total{margin-top:3px;padding-top:9px;border-top:2px solid var(--border);border-bottom:0;font-weight:700}
+    .portfolio-flow-note{margin:8px 0 0;color:var(--muted);font-size:.76rem;line-height:1.45}
 
     .mini-list{
       margin:0;
@@ -422,6 +445,10 @@
 
     .tab-panel{display:none}
     .tab-panel.active{display:block}
+    .app-page[hidden]{display:none !important}
+    .section-page-card > .tabs{display:none}
+    .section-page-card .tab-panel{padding:4px 2px}
+    .section-page-card .tab-panel > h3:first-child{font-size:1.35rem;margin-bottom:10px}
 
     .small{font-size:.92rem}
     .section-title{
@@ -505,7 +532,7 @@
 
       <div class="nav-group">
         <div class="nav-title">Navigation</div>
-        <button class="nav-btn active" data-tab="dashboard"><span class="nav-dot"></span>Dashboard</button>
+        <button class="nav-btn active" data-tab="dashboard"><span class="nav-dot"></span>Overview</button>
         <button class="nav-btn" data-tab="profile"><span class="nav-dot"></span>Profile</button>
         <button class="nav-btn" data-tab="accounts"><span class="nav-dot"></span>Accounts</button>
         <button class="nav-btn" data-tab="income"><span class="nav-dot"></span>Income</button>
@@ -526,7 +553,7 @@
     <main class="main">
       <div class="topbar">
         <div>
-          <h2>Dashboard</h2>
+          <h2>Overview</h2>
           <p class="sub">Track accounts, cash flow, goals, and retirement projections in real time.</p>
         </div>
         <div class="toolbar">
@@ -539,7 +566,7 @@
       <div id="messageArea"></div>
 
       <div class="grid">
-        <div class="card span-3">
+        <div class="card span-3 app-page dashboard-page">
           <div class="kpi">
             <div class="label">Net Worth</div>
             <div class="value" id="netWorthValue">$0</div>
@@ -547,7 +574,7 @@
           </div>
         </div>
 
-        <div class="card span-3">
+        <div class="card span-3 app-page dashboard-page">
           <div class="kpi">
             <div class="label">Monthly Cash Flow</div>
             <div class="value" id="cashFlowValue">$0</div>
@@ -555,7 +582,7 @@
           </div>
         </div>
 
-        <div class="card span-3">
+        <div class="card span-3 app-page dashboard-page">
           <div class="kpi">
             <div class="label">Savings Rate</div>
             <div class="value" id="savingsRateValue">0%</div>
@@ -563,7 +590,7 @@
           </div>
         </div>
 
-        <div class="card span-3">
+        <div class="card span-3 app-page dashboard-page">
           <div class="kpi">
             <div class="label">Retirement Readiness</div>
             <div class="value" id="readinessValue">0%</div>
@@ -573,7 +600,7 @@
           </div>
         </div>
 
-        <div class="card span-8">
+        <div class="card span-8 app-page dashboard-page">
           <h3>Retirement Projection</h3>
           <div class="projection-chart-pane">
             <div class="projection-chart-plot" id="retirementProjectionChart"></div>
@@ -581,7 +608,7 @@
           </div>
         </div>
 
-        <div class="card span-4">
+        <div class="card span-4 app-page dashboard-page">
           <h3>Projection Summary</h3>
           <ul class="mini-list">
             <li id="monthlyIncomeSummary"></li>
@@ -591,8 +618,8 @@
           </ul>
         </div>
 
-        <div class="card span-12">
-          <div class="tabs">
+        <div class="card span-12 app-page section-page-card">
+          <div class="tabs" hidden>
             <button class="tab-btn active" data-panel="dashboard">Overview</button>
             <button class="tab-btn" data-panel="profile">Profile</button>
             <button class="tab-btn" data-panel="accounts">Accounts</button>
@@ -624,7 +651,7 @@
               </div>
               <div class="field half">
                 <label>Current Annual Income</label>
-                <input id="profileCurrentAnnualIncome" type="number" min="0" step="1000" />
+                <input id="profileCurrentAnnualIncome" class="currency-input" data-currency type="text" inputmode="decimal" />
               </div>
               <div class="field half">
                 <label>Target Percent of Monthly Retirement Income</label>
@@ -653,8 +680,11 @@
           <section class="tab-panel" id="accounts-panel">
             <h3>Investment Accounts</h3>
             <p class="muted small" style="margin-top:-4px">
-              Add brokerage, 401(k), IRA, Roth, HSA, and other asset accounts.
+              Add pre-tax, after-tax, brokerage, cash, savings, and other investment accounts.
             </p>
+            <div class="message" id="accountEditNotice" hidden>
+              Editing <strong id="accountEditName"></strong>. Update the fields below and select Update Account.
+            </div>
 
             <div class="form-grid">
               <div class="field half">
@@ -664,13 +694,25 @@
               <div class="field half">
                 <label>Account Type</label>
                 <select id="newAccountType">
-                  <option value="401k">401(k)</option>
-                  <option value="ira">IRA</option>
-                  <option value="roth">Roth IRA</option>
-                  <option value="brokerage">Brokerage</option>
-                  <option value="hsa">HSA</option>
-                  <option value="cash">Cash / Savings</option>
-                  <option value="other">Other</option>
+                  <optgroup label="Pre-Tax Investments">
+                    <option value="401k">401(k)</option>
+                    <option value="ira">Traditional IRA</option>
+                    <option value="403b">403(b)</option>
+                    <option value="457b">457(b)</option>
+                    <option value="hsa">HSA</option>
+                  </optgroup>
+                  <optgroup label="After-Tax Investments">
+                    <option value="roth">Roth IRA</option>
+                  </optgroup>
+                  <optgroup label="Brokerage">
+                    <option value="brokerage">Brokerage Account</option>
+                  </optgroup>
+                  <optgroup label="Cash and Savings">
+                    <option value="cash">Cash / Savings</option>
+                  </optgroup>
+                  <optgroup label="Other Investments">
+                    <option value="other">Other Investment</option>
+                  </optgroup>
                 </select>
               </div>
               <div class="field half">
@@ -679,7 +721,7 @@
               </div>
               <div class="field half">
                 <label>Current Balance</label>
-                <input id="newAccountBalance" type="number" min="0" step="1" placeholder="250000" />
+                <input id="newAccountBalance" class="currency-input" data-currency type="text" inputmode="decimal" placeholder="$250,000.00" />
               </div>
               <div class="field half">
                 <label class="checkbox-label">
@@ -691,11 +733,11 @@
                 <div class="form-grid">
                   <div class="field half">
                     <label>Annual Contribution</label>
-                    <input id="newAccountContribution" type="number" min="0" step="1" placeholder="14000" />
+                    <input id="newAccountContribution" class="currency-input" data-currency type="text" inputmode="decimal" placeholder="$14,000.00" />
                   </div>
                   <div class="field half">
                     <label>Employer Contribution / Year</label>
-                    <input id="newAccountEmployerContribution" type="number" min="0" step="1" placeholder="6000" />
+                    <input id="newAccountEmployerContribution" class="currency-input" data-currency type="text" inputmode="decimal" placeholder="$6,000.00" />
                   </div>
                 </div>
               </div>
@@ -703,38 +745,41 @@
                 <label>Expected Annual Return %</label>
                 <input id="newAccountReturn" type="number" step="0.1" placeholder="6" />
               </div>
-              <div class="field half">
-                <label>Tax-Advantaged</label>
-                <select id="newAccountTaxAdvantaged">
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                </select>
-              </div>
             </div>
 
             <div class="actions">
               <button class="btn primary" id="addAccountBtn">Add Account</button>
+              <button class="btn ghost" id="cancelAccountEditBtn" hidden>Cancel Modification</button>
               <button class="btn secondary" id="saveAccountsBtn">Save Accounts</button>
             </div>
 
             <div class="table-wrap">
-              <table>
+              <table class="accounts-table">
                 <thead>
                   <tr>
                     <th>Name</th>
                     <th>Type</th>
-                    <th>Tax Treatment</th>
-                    <th>Balance</th>
+                    <th>Pre-Tax Balance</th>
+                    <th>After-Tax Balance</th>
+                    <th>Total Balance</th>
                     <th>Continuing</th>
                     <th>Your Contribution / Yr</th>
                     <th>Employer / Yr</th>
                     <th>Return %</th>
-                    <th>Tax Adv.</th>
                     <th>Projected 1 Yr</th>
-                    <th>Action</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody id="accountsTableBody"></tbody>
+                <tfoot>
+                  <tr>
+                    <th colspan="2">Account Totals</th>
+                    <th id="accountsPreTaxTotal">$0.00</th>
+                    <th id="accountsAfterTaxTotal">$0.00</th>
+                    <th id="accountsCompleteTotal">$0.00</th>
+                    <th colspan="6"></th>
+                  </tr>
+                </tfoot>
               </table>
             </div>
           </section>
@@ -742,79 +787,78 @@
           <section class="tab-panel" id="income-panel">
             <h3>Income Sources</h3>
             <p class="muted small" style="margin-top:-4px">
-              Choose either monthly income inputs or pension lump sum mode.
+              Select an income source and enter its amount and expected duration.
             </p>
 
             <div class="form-grid">
               <div class="field half">
-                <label>Monthly Salary</label>
-                <input id="monthlySalary" type="number" min="0" step="1" />
+                <label>Income Name</label>
+                <select id="incomeSourceType">
+                  <option value="salary">Salary</option>
+                  <option value="rental">Rental Income</option>
+                  <option value="pension">Pension</option>
+                  <option value="socialSecurity">Social Security</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
-              <div class="field half">
-                <label>Bonus / Month</label>
-                <input id="monthlyBonus" type="number" min="0" step="1" />
-              </div>
-              <div class="field half">
-                <label>Rental Income / Month</label>
-                <input id="monthlyRentalIncome" type="number" min="0" step="1" />
-              </div>
-              <div class="field half">
-                <label>Other Income / Month</label>
-                <input id="monthlyOtherIncome" type="number" min="0" step="1" />
-              </div>
-            </div>
-
-            <div class="panel" style="margin-top:14px">
-              <h3 style="margin-bottom:8px">Pension / Social Security Options</h3>
-
-              <div class="radio-group">
-                <div class="radio-card">
-                  <label>
-                    <input type="radio" name="pensionMode" value="monthly" id="pensionModeMonthly" />
-                    <span>Monthly pension income</span>
-                  </label>
-                  <div class="desc">
-                    Use regular monthly pension and optionally monthly social security.
-                    These are treated as retirement income streams.
+              <div id="standardIncomeFields" class="field full">
+                <div class="form-grid">
+                  <div class="field half">
+                    <label>Annual Amount</label>
+                    <input id="incomeAnnualAmount" class="currency-input" data-currency type="text" inputmode="decimal" placeholder="$0.00" />
                   </div>
-                </div>
-
-                <div class="radio-card">
-                  <label>
-                    <input type="radio" name="pensionMode" value="lumpSum" id="pensionModeLumpSum" />
-                    <span>Lump sum pension at retirement</span>
-                  </label>
-                  <div class="desc">
-                    Add a lump sum pension value to total retirement assets at retirement age.
-                    This does not count as monthly income before retirement.
+                  <div class="field full"><strong>Income Duration (Ages)</strong></div>
+                  <div class="field half">
+                    <label>Start Age</label>
+                    <input id="incomeStartAge" type="number" min="0" max="110" step="1" placeholder="Optional" />
+                  </div>
+                  <div class="field half">
+                    <label>End Age (Optional)</label>
+                    <input id="incomeEndAge" type="number" min="0" max="110" step="1" placeholder="Optional" />
+                  </div>
+                  <div class="field full">
+                    <p class="muted small" style="margin:0">If no end age is entered, this income is assumed to continue through the projected longevity age.</p>
                   </div>
                 </div>
               </div>
 
-              <div class="form-grid" style="margin-top:14px">
-                <div class="field half">
-                  <label>Social Security / Month</label>
-                  <input id="socialSecurityMonthly" type="number" min="0" step="1" />
+              <div id="pensionPaymentFields" class="field full" hidden>
+                <strong>Payment Type</strong>
+                <div class="radio-group" style="margin-top:8px">
+                  <div class="radio-card">
+                    <label><input type="radio" name="pensionMode" value="lumpSum" id="pensionModeLumpSum" /> <span>Lump sum payment</span></label>
+                  </div>
+                  <div class="radio-card">
+                    <label><input type="radio" name="pensionMode" value="monthly" id="pensionModeMonthly" /> <span>Monthly payment</span></label>
+                  </div>
                 </div>
-
-                <div class="field half">
-                  <label>Pension / Month</label>
-                  <input id="pensionMonthly" type="number" min="0" step="1" />
+                <div id="pensionLumpSumFields" class="form-grid" style="margin-top:14px" hidden>
+                  <div class="field half">
+                    <label>Lump Sum Amount</label>
+                    <input id="pensionLumpSum" class="currency-input" data-currency type="text" inputmode="decimal" placeholder="$0.00" />
+                  </div>
+                  <div class="field half">
+                    <label>Start Age</label>
+                    <input id="pensionLumpSumAge" type="number" min="0" max="110" step="1" />
+                  </div>
                 </div>
-
-                <div class="field half">
-                  <label>Pension Lump Sum</label>
-                  <input id="pensionLumpSum" type="number" min="0" step="1" />
+                <div id="pensionMonthlyFields" class="form-grid" style="margin-top:14px" hidden>
+                  <div class="field full">
+                    <label>Monthly Income</label>
+                    <input id="pensionMonthlyAmount" class="currency-input" data-currency type="text" inputmode="decimal" placeholder="$0.00" />
+                  </div>
+                  <div class="field half">
+                    <label>Start Age</label>
+                    <input id="pensionMonthlyStartAge" type="number" min="0" max="110" step="1" />
+                  </div>
+                  <div class="field half">
+                    <label>End Age (Optional)</label>
+                    <input id="pensionMonthlyEndAge" type="number" min="0" max="110" step="1" placeholder="Optional" />
+                  </div>
+                  <div class="field full">
+                    <p class="muted small" style="margin:0">If no end age is entered, monthly pension income continues through the projected longevity age.</p>
+                  </div>
                 </div>
-
-                <div class="field half">
-                  <label>Lump Sum Pays Out At Age</label>
-                  <input id="pensionLumpSumAge" type="number" min="0" step="1" />
-                </div>
-              </div>
-
-              <div class="inline-help">
-                If lump sum mode is selected, the amount will be added to projected retirement assets in the year retirement payout occurs.
               </div>
             </div>
 
@@ -822,9 +866,27 @@
               <button class="btn primary" id="saveIncomeBtn">Save Income</button>
             </div>
 
-            <div class="panel" style="margin-top:14px">
-              <strong>Calculated Monthly Income:</strong>
-              <span id="calculatedIncomeValue" style="margin-left:8px">$0</span>
+            <div class="table-wrap" style="margin-top:14px">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Income Name</th>
+                    <th>Annual Amount</th>
+                    <th>Monthly Amount</th>
+                    <th>Age Start</th>
+                    <th>Age Stop</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="incomeTableBody"></tbody>
+                <tfoot>
+                  <tr>
+                    <th colspan="2">Monthly Income Total</th>
+                    <th id="incomeMonthlyTotal">$0.00</th>
+                    <th colspan="3"></th>
+                  </tr>
+                </tfoot>
+              </table>
             </div>
           </section>
 
@@ -833,27 +895,31 @@
             <div class="form-grid">
               <div class="field half">
                 <label>Housing / Month</label>
-                <input id="monthlyHousing" type="number" min="0" step="1" />
+                <input id="monthlyHousing" data-currency type="text" inputmode="decimal" />
               </div>
               <div class="field half">
                 <label>Food / Month</label>
-                <input id="monthlyFood" type="number" min="0" step="1" />
+                <input id="monthlyFood" data-currency type="text" inputmode="decimal" />
               </div>
               <div class="field half">
                 <label>Transportation / Month</label>
-                <input id="monthlyTransportation" type="number" min="0" step="1" />
+                <input id="monthlyTransportation" data-currency type="text" inputmode="decimal" />
               </div>
               <div class="field half">
                 <label>Healthcare / Month</label>
-                <input id="monthlyHealthcare" type="number" min="0" step="1" />
+                <input id="monthlyHealthcare" data-currency type="text" inputmode="decimal" />
               </div>
               <div class="field half">
                 <label>Debt Payments / Month</label>
-                <input id="monthlyDebtPayments" type="number" min="0" step="1" />
+                <input id="monthlyDebtPayments" data-currency type="text" inputmode="decimal" />
               </div>
               <div class="field half">
                 <label>Other Expenses / Month</label>
-                <input id="monthlyOtherExpenses" type="number" min="0" step="1" />
+                <input id="monthlyOtherExpenses" data-currency type="text" inputmode="decimal" />
+              </div>
+              <div class="field half">
+                <label>Travel / Month</label>
+                <input id="monthlyTravel" data-currency type="text" inputmode="decimal" />
               </div>
             </div>
 
@@ -876,15 +942,15 @@
               </div>
               <div class="field half">
                 <label>Target Amount</label>
-                <input id="newGoalTarget" type="number" min="0" step="1" placeholder="25000" />
+                <input id="newGoalTarget" data-currency type="text" inputmode="decimal" placeholder="$25,000.00" />
               </div>
               <div class="field half">
                 <label>Current Amount</label>
-                <input id="newGoalCurrent" type="number" min="0" step="1" placeholder="8000" />
+                <input id="newGoalCurrent" data-currency type="text" inputmode="decimal" placeholder="$8,000.00" />
               </div>
               <div class="field half">
                 <label>Monthly Contribution</label>
-                <input id="newGoalContribution" type="number" min="0" step="1" placeholder="500" />
+                <input id="newGoalContribution" data-currency type="text" inputmode="decimal" placeholder="$500.00" />
               </div>
               <div class="field full">
                 <label>Goal Notes</label>
@@ -916,7 +982,7 @@
           </section>
         </div>
 
-        <div class="card span-12">
+        <div class="card span-12 app-page" id="scenarios-page" hidden>
           <h3>Scenario Comparison</h3>
           <div class="actions">
             <button class="btn primary" id="addScenarioBtn">Add Scenario</button>
@@ -929,10 +995,12 @@
                 <tr>
                   <th>Scenario</th>
                   <th>Retirement Age</th>
-                  <th>Projected Assets</th>
-                  <th>Before-Tax Assets</th>
-                  <th>After-Tax Assets</th>
-                  <th>Monthly Income</th>
+                  <th>Total Projected Assets</th>
+                  <th>Before-Tax Asset Bucket</th>
+                  <th>After-Tax Asset Bucket</th>
+                  <th>Monthly Income (+)</th>
+                  <th>Monthly Expenses (-)</th>
+                  <th>Net Monthly</th>
                   <th>Projected Longevity</th>
                   <th>Score</th>
                   <th>Action</th>
@@ -951,12 +1019,30 @@
               </div>
               <div>
                 <span id="selectedScenarioStatus" class="status warning"><span class="dot"></span>Moderate</span>
+                <div class="scenario-charts" style="margin-top:12px">
+                  <div class="scenario-chart-card">
+                    <h4>Portfolio Burn-Up</h4>
+                    <p class="chart-note">Account growth and contributions through retirement</p>
+                    <div id="selectedScenarioBurnUpChart" class="scenario-chart"></div>
+                    <div id="selectedScenarioBurnUpLegend" class="scenario-chart-legend"></div>
+                  </div>
+                  <div class="scenario-chart-card">
+                    <h4>Portfolio Burn-Down</h4>
+                    <p class="chart-note">Monthly portfolio path through longevity: income is added, expenses are deducted, and the remaining balance receives market growth</p>
+                    <div id="selectedScenarioBurnDownChart" class="scenario-chart"></div>
+                    <div class="scenario-chart-legend">
+                      <span style="--legend-color:#2563eb">Portfolio balance</span>
+                      <span style="--legend-color:#16a34a">Income added</span>
+                      <span style="--legend-color:#dc2626">Expenses deducted</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="card span-12" id="assistant-panel">
+        <div class="card span-12 app-page" id="assistant-panel" hidden>
           <h3>AI Financial Assistant</h3>
           <textarea id="aiPrompt" placeholder='Try: "Can I retire at 62?" or "What happens if I save $500 more per month?"'></textarea>
           <div class="actions">
@@ -1011,7 +1097,15 @@
       pensionMonthly: 2100,
       pensionMode: "monthly", // monthly | lumpSum
       pensionLumpSum: 150000,
-      pensionLumpSumAge: 67
+      pensionLumpSumAge: 67,
+      selectedIncomeSource: "salary",
+      incomeDurations: {
+        salary: { startAge: null, endAge: null },
+        rental: { startAge: null, endAge: null },
+        pension: { startAge: null, endAge: null },
+        socialSecurity: { startAge: null, endAge: null },
+        other: { startAge: null, endAge: null }
+      }
     };
 
     const defaultExpenses = {
@@ -1020,7 +1114,8 @@
       monthlyTransportation: 700,
       monthlyHealthcare: 450,
       monthlyDebtPayments: 500,
-      monthlyOtherExpenses: 600
+      monthlyOtherExpenses: 600,
+      monthlyTravel: 0
     };
 
     const defaultAccounts = [];
@@ -1091,6 +1186,40 @@
       }).format(value || 0);
     }
 
+    function parseCurrency(value) {
+      const parsed = Number(String(value ?? "").replace(/[^0-9.-]/g, ""));
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function currencyEntry(value) {
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(parseCurrency(value));
+    }
+
+    function bindCurrencyInputs(root = document) {
+      root.querySelectorAll("[data-currency]").forEach(input => {
+        if (input.dataset.currencyBound === "true") return;
+        input.dataset.currencyBound = "true";
+        input.addEventListener("focus", () => {
+          input.value = parseCurrency(input.value) || "";
+          input.select();
+        });
+        input.addEventListener("blur", () => {
+          input.value = currencyEntry(input.value);
+        });
+      });
+    }
+
+    function formatCurrencyInputs(root = document) {
+      root.querySelectorAll("[data-currency]").forEach(input => {
+        if (document.activeElement !== input) input.value = currencyEntry(input.value);
+      });
+    }
+
     function percent(value) {
       return `${Number(value || 0).toFixed(1)}%`;
     }
@@ -1111,8 +1240,14 @@
 
     let profile = loadFromLocalStorage(STORAGE_KEYS.profile, defaultProfile);
     let income = loadFromLocalStorage(STORAGE_KEYS.income, defaultIncome);
-    let expenses = loadFromLocalStorage(STORAGE_KEYS.expenses, defaultExpenses);
+    income = {
+      ...defaultIncome,
+      ...income,
+      incomeDurations: { ...defaultIncome.incomeDurations, ...(income.incomeDurations || {}) }
+    };
+    let expenses = { ...defaultExpenses, ...loadFromLocalStorage(STORAGE_KEYS.expenses, defaultExpenses) };
     let accounts = loadFromLocalStorage(STORAGE_KEYS.accounts, defaultAccounts);
+    let editingAccountId = null;
     let goals = loadFromLocalStorage(STORAGE_KEYS.goals, defaultGoals);
     let scenarios = loadFromLocalStorage(STORAGE_KEYS.scenarios, defaultScenarios);
     let selectedScenarioId = loadFromLocalStorage(STORAGE_KEYS.selectedScenario, scenarios[0].id);
@@ -1129,15 +1264,66 @@
       }, 0);
     }
 
-    function calculateMonthlyIncome() {
-      return [
-        income.monthlySalary,
-        income.monthlyBonus,
-        income.monthlyRentalIncome,
-        income.monthlyOtherIncome,
-        income.pensionMode === "monthly" ? income.socialSecurityMonthly : 0,
-        income.pensionMode === "monthly" ? income.pensionMonthly : 0
-      ].reduce((sum, v) => sum + Number(v || 0), 0);
+    function incomeSourceIsActive(sourceType, age) {
+      const duration = income.incomeDurations?.[sourceType] || {};
+      const startAge = duration.startAge === null || duration.startAge === "" || duration.startAge === undefined
+        ? 0
+        : Number(duration.startAge);
+      const selectedScenario = scenarios.find(s => s.id === selectedScenarioId) || scenarios[0];
+      const defaultEndAge = Number(selectedScenario?.projectedLongevity || profile.lifeExpectancy || 110);
+      const endAge = duration.endAge === null || duration.endAge === "" || duration.endAge === undefined
+        ? defaultEndAge
+        : Number(duration.endAge);
+      return age >= startAge && age <= endAge;
+    }
+
+    function calculateMonthlyIncome(age = Number(profile.currentAge || 0)) {
+      const sources = {
+        salary: Number(income.monthlySalary || 0) + Number(income.monthlyBonus || 0),
+        rental: Number(income.monthlyRentalIncome || 0),
+        pension: income.pensionMode === "monthly" ? Number(income.pensionMonthly || 0) : 0,
+        socialSecurity: Number(income.socialSecurityMonthly || 0),
+        other: Number(income.monthlyOtherIncome || 0)
+      };
+      return Object.entries(sources).reduce((sum, [type, amount]) =>
+        sum + (incomeSourceIsActive(type, age) ? amount : 0), 0);
+    }
+
+    function getIncomeSourceAnnualAmount(sourceType) {
+      const monthlyAmounts = {
+        salary: Number(income.monthlySalary || 0) + Number(income.monthlyBonus || 0),
+        rental: Number(income.monthlyRentalIncome || 0),
+        pension: Number(income.pensionMonthly || 0),
+        socialSecurity: Number(income.socialSecurityMonthly || 0),
+        other: Number(income.monthlyOtherIncome || 0)
+      };
+      return Number(monthlyAmounts[sourceType] || 0) * 12;
+    }
+
+    function populateIncomeSourceEditor() {
+      const sourceType = income.selectedIncomeSource || "salary";
+      const duration = income.incomeDurations?.[sourceType] || {};
+      document.getElementById("incomeSourceType").value = sourceType;
+      document.getElementById("incomeAnnualAmount").value = getIncomeSourceAnnualAmount(sourceType);
+      document.getElementById("incomeStartAge").value = duration.startAge ?? "";
+      document.getElementById("incomeEndAge").value = duration.endAge ?? "";
+      const isPension = sourceType === "pension";
+      document.getElementById("standardIncomeFields").hidden = isPension;
+      document.getElementById("pensionPaymentFields").hidden = !isPension;
+      document.getElementById("pensionModeMonthly").checked = income.pensionMode === "monthly";
+      document.getElementById("pensionModeLumpSum").checked = income.pensionMode === "lumpSum";
+      document.getElementById("pensionLumpSum").value = income.pensionLumpSum;
+      document.getElementById("pensionLumpSumAge").value = income.pensionLumpSumAge ?? "";
+      document.getElementById("pensionMonthlyAmount").value = income.pensionMonthly;
+      document.getElementById("pensionMonthlyStartAge").value = duration.startAge ?? "";
+      document.getElementById("pensionMonthlyEndAge").value = duration.endAge ?? "";
+      updatePensionPaymentFields();
+    }
+
+    function updatePensionPaymentFields() {
+      const isLumpSum = document.getElementById("pensionModeLumpSum").checked;
+      document.getElementById("pensionLumpSumFields").hidden = !isLumpSum;
+      document.getElementById("pensionMonthlyFields").hidden = isLumpSum;
     }
 
     function calculateMonthlyExpenses() {
@@ -1153,8 +1339,8 @@
         monthlyContribution: calculateAnnualAccountContributions() / 12,
         expectedAnnualReturn: profile.expectedAnnualReturn,
         inflationRate: profile.inflationRate,
-        retirementSpendingAnnual: profile.retirementSpendingAnnual,
-        socialSecurityMonthly: income.pensionMode === "monthly" ? Number(income.socialSecurityMonthly || 0) : 0,
+        retirementSpendingAnnual: calculateMonthlyExpenses() * 12,
+        socialSecurityMonthly: Number(income.socialSecurityMonthly || 0),
         pensionMonthly: income.pensionMode === "monthly" ? Number(income.pensionMonthly || 0) : 0,
         pensionMode: income.pensionMode,
         pensionLumpSum: Number(income.pensionLumpSum || 0),
@@ -1200,8 +1386,7 @@
       const projectedAfterTaxAssets = projectedTaxedAccountAssets + projectedBeforeTaxAssets * (1 - estimatedTaxRate / 100);
       const projectedAssetsAtRetirement = projectedBeforeTaxAssets + projectedTaxedAccountAssets;
 
-      const retirementIncomeMonthly =
-        (p.pensionMode === "monthly" ? p.socialSecurityMonthly + p.pensionMonthly : p.socialSecurityMonthly);
+      const retirementIncomeMonthly = calculateMonthlyIncome(p.retirementAge);
 
       const projectedMonthlyIncome = retirementIncomeMonthly + projectedAfterTaxAssets * 0.0035;
       const projectedAnnualIncome = projectedMonthlyIncome * 12;
@@ -1292,10 +1477,7 @@
         }
       }
 
-      const retirementIncomeMonthly =
-        scenario.pensionMode === "monthly"
-          ? Number(scenario.socialSecurityMonthly || 0) + Number(scenario.pensionMonthly || 0)
-          : Number(scenario.socialSecurityMonthly || 0);
+      const retirementIncomeMonthly = calculateMonthlyIncome(retirementAge);
 
       const projectedBeforeTaxAssets = Math.max(0, beforeTaxBalance);
       const projectedTaxedAccountAssets = Math.max(0, afterTaxBalance);
@@ -1304,8 +1486,10 @@
       const projectedAssetsAtRetirement = projectedBeforeTaxAssets + projectedTaxedAccountAssets;
       const projectedMonthlyIncome = retirementIncomeMonthly + projectedAfterTaxAssets * 0.0035;
       const projectedAnnualIncome = projectedMonthlyIncome * 12;
-      const projectedAnnualExpenses = Number(scenario.retirementSpendingAnnual || 0) * Math.pow(1 + profile.inflationRate / 100, yearsToRetirement);
+      const projectedAnnualExpenses = calculateMonthlyExpenses() * 12 * Math.pow(1 + profile.inflationRate / 100, yearsToRetirement);
       const incomeGapAnnual = projectedAnnualExpenses - projectedAnnualIncome;
+      const projectedMonthlyExpenses = projectedAnnualExpenses / 12;
+      const projectedNetMonthlyIncome = projectedMonthlyIncome - projectedMonthlyExpenses;
 
       let depletionAge = profile.lifeExpectancy;
       let asset = projectedAfterTaxAssets;
@@ -1315,14 +1499,16 @@
         retirementAge + 1,
         110
       );
-      const annualWithdrawal = Math.max(0, projectedAnnualExpenses - retirementIncomeMonthly * 12);
-
+      let retirementMonth = 0;
+      const monthlyRetirementReturn = Math.pow(1.04, 1 / 12) - 1;
       while (asset > 0 && age < 110) {
-        asset = asset * 1.04 - annualWithdrawal;
-        age++;
-        if (asset <= 0) break;
+        const activeMonthlyIncome = calculateMonthlyIncome(Math.floor(age));
+        asset = Math.max(0, asset + activeMonthlyIncome - projectedMonthlyExpenses);
+        asset *= 1 + monthlyRetirementReturn;
+        retirementMonth++;
+        age = retirementAge + retirementMonth / 12;
       }
-      depletionAge = age;
+      depletionAge = Math.min(110, Math.ceil(age));
 
       const readinessRatio = projectedAnnualIncome / Math.max(1, projectedAnnualExpenses);
       const savingsRatio = projectedAfterTaxAssets / Math.max(1, projectedAnnualExpenses * 25);
@@ -1337,7 +1523,10 @@
         projectedAfterTaxAssets,
         projectedTaxedAccountAssets,
         estimatedTaxRate,
+        retirementIncomeMonthly,
         projectedMonthlyIncome,
+        projectedMonthlyExpenses,
+        projectedNetMonthlyIncome,
         projectedAnnualIncome,
         projectedAnnualExpenses,
         incomeGapAnnual,
@@ -1356,16 +1545,7 @@
       document.getElementById("profileEstimatedTaxRate").readOnly = profile.estimatedTaxRateOverrideEnabled !== true;
       updateProfileRetirementIncomeTarget();
 
-      document.getElementById("monthlySalary").value = income.monthlySalary;
-      document.getElementById("monthlyBonus").value = income.monthlyBonus;
-      document.getElementById("monthlyRentalIncome").value = income.monthlyRentalIncome;
-      document.getElementById("monthlyOtherIncome").value = income.monthlyOtherIncome;
-      document.getElementById("socialSecurityMonthly").value = income.socialSecurityMonthly;
-      document.getElementById("pensionMonthly").value = income.pensionMonthly;
-      document.getElementById("pensionLumpSum").value = income.pensionLumpSum;
-      document.getElementById("pensionLumpSumAge").value = income.pensionLumpSumAge;
-      document.getElementById("pensionModeMonthly").checked = income.pensionMode === "monthly";
-      document.getElementById("pensionModeLumpSum").checked = income.pensionMode === "lumpSum";
+      populateIncomeSourceEditor();
 
       document.getElementById("monthlyHousing").value = expenses.monthlyHousing;
       document.getElementById("monthlyFood").value = expenses.monthlyFood;
@@ -1373,10 +1553,13 @@
       document.getElementById("monthlyHealthcare").value = expenses.monthlyHealthcare;
       document.getElementById("monthlyDebtPayments").value = expenses.monthlyDebtPayments;
       document.getElementById("monthlyOtherExpenses").value = expenses.monthlyOtherExpenses;
+      document.getElementById("monthlyTravel").value = expenses.monthlyTravel;
+      bindCurrencyInputs();
+      formatCurrencyInputs();
     }
 
     function updateProfileRetirementIncomeTarget() {
-      const annualIncome = Number(document.getElementById("profileCurrentAnnualIncome").value || 0);
+      const annualIncome = parseCurrency(document.getElementById("profileCurrentAnnualIncome").value);
       const targetPercent = Number(document.getElementById("profileTargetRetirementIncomePercent").value || 0);
       const targetMonthlyIncome = annualIncome / 12 * targetPercent / 100;
       document.getElementById("profileTargetMonthlyRetirementIncome").value = currency(targetMonthlyIncome);
@@ -1442,7 +1625,7 @@
       profile = {
         ...profile,
         currentAge: Number(document.getElementById("profileCurrentAge").value || 0),
-        currentAnnualIncome: Number(document.getElementById("profileCurrentAnnualIncome").value || 0),
+        currentAnnualIncome: parseCurrency(document.getElementById("profileCurrentAnnualIncome").value),
         targetRetirementIncomePercent: Number(document.getElementById("profileTargetRetirementIncomePercent").value || 0)
       };
       saveToLocalStorage(STORAGE_KEYS.profile, profile);
@@ -1461,10 +1644,10 @@
       const retirementAge = Math.max(currentAge, Number(selectedScenario?.retirementAge || profile.retirementAge || currentAge));
       const years = Math.max(0, retirementAge - currentAge);
       const colors = {
-        "401k":"#2563eb", ira:"#7c3aed", roth:"#16a34a", brokerage:"#f59e0b",
-        hsa:"#0891b2", cash:"#64748b", other:"#e11d48"
+        "401k":"#2563eb", ira:"#7c3aed", "403b":"#4f46e5", "457b":"#9333ea",
+        hsa:"#0891b2", roth:"#16a34a", brokerage:"#f59e0b", cash:"#64748b", other:"#e11d48"
       };
-      const typeOrder = ["401k", "ira", "roth", "brokerage", "hsa", "cash", "other"];
+      const typeOrder = ["401k", "ira", "403b", "457b", "hsa", "roth", "brokerage", "cash", "other"];
       const activeTypes = typeOrder.filter(type => accounts.some(account => account.type === type));
 
       if (!activeTypes.length) {
@@ -1493,9 +1676,7 @@
       const totals = Array.from({length: years + 1}, (_, year) =>
         activeTypes.reduce((sum, type) => sum + series[type][year], 0)
       );
-      const retirementIncomeMonthly = selectedScenario?.pensionMode === "monthly"
-        ? Number(selectedScenario.socialSecurityMonthly || 0) + Number(selectedScenario.pensionMonthly || 0)
-        : Number(selectedScenario?.socialSecurityMonthly || 0);
+      const retirementIncomeMonthly = calculateMonthlyIncome(retirementAge);
       const targetMonthlyIncome = Number(profile.currentAnnualIncome || 0) / 12 *
         (Number(profile.targetRetirementIncomePercent || 0) / 100);
       const requiredAfterTaxAssets = Math.max(0, targetMonthlyIncome - retirementIncomeMonthly) / 0.0035;
@@ -1587,33 +1768,44 @@
 
       setStatusElement(document.getElementById("readinessStatus"), proj.retirementReadinessScore);
       renderRetirementProjectionChart();
-      document.getElementById("calculatedIncomeValue").textContent = currency(monthlyIncome);
       document.getElementById("calculatedExpensesValue").textContent = currency(monthlyExpenses);
     }
 
     function accountTypeOptions(selectedType) {
-      const types = ["401k","ira","roth","brokerage","hsa","cash","other"];
-      return types.map(type => `<option value="${type}" ${type === selectedType ? "selected" : ""}>${prettyType(type)}</option>`).join("");
+      const groups = [
+        ["Pre-Tax Investments", ["401k", "ira", "403b", "457b", "hsa"]],
+        ["After-Tax Investments", ["roth"]],
+        ["Brokerage", ["brokerage"]],
+        ["Cash and Savings", ["cash"]],
+        ["Other Investments", ["other"]]
+      ];
+      return groups.map(([label, types]) => `
+        <optgroup label="${label}">
+          ${types.map(type => `<option value="${type}" ${type === selectedType ? "selected" : ""}>${prettyType(type)}</option>`).join("")}
+        </optgroup>
+      `).join("");
     }
 
     function prettyType(type) {
       return ({
         "401k":"401(k)",
-        "ira":"IRA",
+        "ira":"Traditional IRA",
+        "403b":"403(b)",
+        "457b":"457(b)",
         "roth":"Roth IRA",
-        "brokerage":"Brokerage",
+        "brokerage":"Brokerage Account",
         "hsa":"HSA",
         "cash":"Cash / Savings",
-        "other":"Other"
+        "other":"Other Investment"
       })[type] || type;
     }
 
     function accountTaxTreatment(type) {
-      return ["401k", "ira", "hsa"].includes(type) ? "preTax" : "taxed";
+      return ["401k", "ira", "403b", "457b", "hsa"].includes(type) ? "preTax" : "taxed";
     }
 
     function accountTaxTreatmentLabel(type) {
-      return accountTaxTreatment(type) === "preTax" ? "Pre-tax" : "Taxed";
+      return accountTaxTreatment(type) === "preTax" ? "Pre-tax" : "After-tax";
     }
 
     function calculateAccountTaxBuckets() {
@@ -1642,6 +1834,15 @@
     function renderAccounts() {
       const tbody = document.getElementById("accountsTableBody");
       tbody.innerHTML = "";
+      const bucketTotals = calculateAccountTaxBuckets();
+      document.getElementById("accountsPreTaxTotal").textContent = currency(bucketTotals.beforeTaxBalance);
+      document.getElementById("accountsAfterTaxTotal").textContent = currency(bucketTotals.afterTaxBalance);
+      document.getElementById("accountsCompleteTotal").textContent = currency(bucketTotals.beforeTaxBalance + bucketTotals.afterTaxBalance);
+
+      if (!accounts.length) {
+        tbody.innerHTML = '<tr><td colspan="11" class="muted" style="text-align:center;padding:28px">No accounts added yet. Use the form above to add your first account.</td></tr>';
+        return;
+      }
 
       accounts.forEach((account) => {
         const continuing = account.continuingContributions ?? (Number(account.annualContribution || 0) > 0 || Number(account.employerContribution || 0) > 0);
@@ -1649,40 +1850,34 @@
           ? Number(account.annualContribution || 0) + Number(account.employerContribution || 0)
           : 0;
         const projected1Yr = Number(account.balance || 0) * (1 + Number(account.expectedReturn || 0) / 100) + annualContributions;
+        const balance = Number(account.balance || 0);
+        const isPreTax = accountTaxTreatment(account.type) === "preTax";
         const row = document.createElement("tr");
         row.innerHTML = `
-          <td><input type="text" value="${escapeHtml(account.name)}" data-id="${account.id}" data-field="name" class="row-input"></td>
-          <td>
-            <select data-id="${account.id}" data-field="type" class="row-input">
-              ${accountTypeOptions(account.type)}
-            </select>
-          </td>
-          <td>${accountTaxTreatmentLabel(account.type)}</td>
-          <td><input type="number" value="${account.balance}" data-id="${account.id}" data-field="balance" class="row-input"></td>
-          <td><input type="checkbox" ${continuing ? "checked" : ""} data-id="${account.id}" data-field="continuingContributions" class="row-input"></td>
-          <td><input type="number" value="${account.annualContribution || 0}" data-id="${account.id}" data-field="annualContribution" class="row-input" ${continuing ? "" : "hidden"}></td>
-          <td><input type="number" value="${account.employerContribution || 0}" data-id="${account.id}" data-field="employerContribution" class="row-input" ${continuing ? "" : "hidden"}></td>
-          <td><input type="number" step="0.1" value="${account.expectedReturn}" data-id="${account.id}" data-field="expectedReturn" class="row-input"></td>
-          <td>
-            <select data-id="${account.id}" data-field="taxAdvantaged" class="row-input">
-              <option value="true" ${account.taxAdvantaged ? "selected" : ""}>Yes</option>
-              <option value="false" ${!account.taxAdvantaged ? "selected" : ""}>No</option>
-            </select>
-          </td>
+          <td>${escapeHtml(account.name)}</td>
+          <td>${prettyType(account.type)}</td>
+          <td>${isPreTax ? currency(balance) : "—"}</td>
+          <td>${isPreTax ? "—" : currency(balance)}</td>
+          <td>${currency(balance)}</td>
+          <td>${continuing ? "Yes" : "No"}</td>
+          <td>${continuing ? currency(Number(account.annualContribution || 0)) : "—"}</td>
+          <td>${continuing ? currency(Number(account.employerContribution || 0)) : "—"}</td>
+          <td>${Number(account.expectedReturn || 0).toFixed(1)}%</td>
           <td>${currency(projected1Yr)}</td>
-          <td><button class="btn ghost" data-delete-account="${account.id}">Delete</button></td>
+          <td><div class="account-actions"><button class="btn secondary" data-modify-account="${account.id}">Modify</button><button class="btn ghost" data-delete-account="${account.id}">Delete</button></div></td>
         `;
         tbody.appendChild(row);
       });
 
-      tbody.querySelectorAll(".row-input").forEach((input) => {
-        input.addEventListener("input", handleAccountChange);
-        input.addEventListener("change", handleAccountChange);
+      tbody.querySelectorAll("[data-modify-account]").forEach((btn) => {
+        btn.addEventListener("click", () => loadAccountForModification(btn.getAttribute("data-modify-account")));
       });
 
       tbody.querySelectorAll("[data-delete-account]").forEach((btn) => {
         btn.addEventListener("click", () => {
-          accounts = accounts.filter(a => a.id !== btn.getAttribute("data-delete-account"));
+          const deletedId = btn.getAttribute("data-delete-account");
+          accounts = accounts.filter(a => a.id !== deletedId);
+          if (editingAccountId === deletedId) clearAccountForm();
           saveToLocalStorage(STORAGE_KEYS.accounts, accounts);
           refreshAll();
           showMessage("Account deleted.");
@@ -1703,9 +1898,9 @@
         const row = document.createElement("tr");
         row.innerHTML = `
           <td><input type="text" value="${escapeHtml(goal.name)}" data-id="${goal.id}" data-field="name" class="goal-input"></td>
-          <td><input type="number" value="${goal.targetAmount}" data-id="${goal.id}" data-field="targetAmount" class="goal-input"></td>
-          <td><input type="number" value="${goal.currentAmount}" data-id="${goal.id}" data-field="currentAmount" class="goal-input"></td>
-          <td><input type="number" value="${goal.monthlyContribution}" data-id="${goal.id}" data-field="monthlyContribution" class="goal-input"></td>
+          <td><input type="text" inputmode="decimal" data-currency value="${currencyEntry(goal.targetAmount)}" data-id="${goal.id}" data-field="targetAmount" class="goal-input"></td>
+          <td><input type="text" inputmode="decimal" data-currency value="${currencyEntry(goal.currentAmount)}" data-id="${goal.id}" data-field="currentAmount" class="goal-input"></td>
+          <td><input type="text" inputmode="decimal" data-currency value="${currencyEntry(goal.monthlyContribution)}" data-id="${goal.id}" data-field="monthlyContribution" class="goal-input"></td>
           <td>${progress.toFixed(0)}%</td>
           <td>${yearsToGoal === Infinity ? "N/A" : yearsToGoal.toFixed(1)}</td>
           <td><button class="btn ghost" data-delete-goal="${goal.id}">Delete</button></td>
@@ -1714,8 +1909,9 @@
       });
 
       tbody.querySelectorAll(".goal-input").forEach((input) => {
-        input.addEventListener("input", handleGoalChange);
+        input.addEventListener(input.hasAttribute("data-currency") ? "change" : "input", handleGoalChange);
       });
+      bindCurrencyInputs(tbody);
 
       tbody.querySelectorAll("[data-delete-goal]").forEach((btn) => {
         btn.addEventListener("click", () => {
@@ -1725,6 +1921,121 @@
           showMessage("Goal deleted.");
         });
       });
+    }
+
+    function renderSelectedScenarioCharts(selected, projection) {
+      const burnUpEl = document.getElementById("selectedScenarioBurnUpChart");
+      const burnDownEl = document.getElementById("selectedScenarioBurnDownChart");
+      const legendEl = document.getElementById("selectedScenarioBurnUpLegend");
+      const width = 520;
+      const height = 225;
+      const margin = { left: 55, right: 12, top: 12, bottom: 28 };
+      const colors = ["#2563eb", "#7c3aed", "#0891b2", "#ea580c", "#16a34a", "#db2777", "#64748b"];
+      const compactValue = value => value >= 1000000
+        ? `$${(value / 1000000).toFixed(1)}M`
+        : `$${Math.round(value / 1000)}K`;
+      const currentAge = Number(profile.currentAge || 0);
+      const retirementAge = Math.max(currentAge, Number(selected.retirementAge || currentAge));
+      const years = Math.max(0, retirementAge - currentAge);
+      const series = accounts.map((account, index) => {
+        let balance = Number(account.balance || 0);
+        const values = [balance];
+        const continuing = account.continuingContributions ?? (Number(account.annualContribution || 0) > 0 || Number(account.employerContribution || 0) > 0);
+        const contribution = continuing ? Number(account.annualContribution || 0) + Number(account.employerContribution || 0) : 0;
+        const rate = Number(account.expectedReturn || 0) / 100;
+        for (let year = 1; year <= years; year++) {
+          balance = balance * (1 + rate) + contribution;
+          values.push(balance);
+        }
+        return { name: account.name || prettyType(account.type), color: colors[index % colors.length], values };
+      });
+      if (income.pensionMode === "lumpSum" && Number(income.pensionLumpSum || 0) > 0) {
+        const payoutAge = Number(income.pensionLumpSumAge || retirementAge);
+        let balance = 0;
+        const values = [];
+        for (let age = currentAge; age <= retirementAge; age++) {
+          if (age === payoutAge) balance += Number(income.pensionLumpSum || 0);
+          else if (age > payoutAge) balance *= 1.04;
+          values.push(balance);
+        }
+        series.push({ name: "Pension lump sum", color: colors[series.length % colors.length], values });
+      }
+      const totalValues = Array.from({ length: years + 1 }, (_, index) => series.reduce((sum, item) => sum + Number(item.values[index] || 0), 0));
+      const maxBurnUp = Math.max(1, ...totalValues) * 1.08;
+      const xUp = index => margin.left + (index / Math.max(1, years)) * (width - margin.left - margin.right);
+      const yUp = value => height - margin.bottom - (value / maxBurnUp) * (height - margin.top - margin.bottom);
+      let burnUpSvg = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Portfolio burn-up from age ${currentAge} to ${retirementAge}">`;
+      for (let tick = 0; tick <= 4; tick++) {
+        const value = maxBurnUp * tick / 4;
+        const y = yUp(value);
+        burnUpSvg += `<line class="chart-grid-line" x1="${margin.left}" y1="${y}" x2="${width-margin.right}" y2="${y}"></line><text class="chart-axis-label" x="${margin.left-6}" y="${y+4}" text-anchor="end">${compactValue(value)}</text>`;
+      }
+      const stackedBase = Array(years + 1).fill(0);
+      series.forEach(item => {
+        const stackedTop = item.values.map((value, index) => stackedBase[index] + Number(value || 0));
+        const topPoints = stackedTop.map((value, index) => `${xUp(index)},${yUp(value)}`).join(" ");
+        const bottomPoints = stackedBase.map((value, index) => `${xUp(index)},${yUp(value)}`).reverse().join(" ");
+        burnUpSvg += `<polygon points="${topPoints} ${bottomPoints}" fill="${item.color}" fill-opacity=".76" stroke="${item.color}" stroke-width="1"><title>${escapeHtml(item.name)}: ${currency(item.values[years] || 0)} at age ${retirementAge}</title></polygon>`;
+        stackedTop.forEach((value, index) => { stackedBase[index] = value; });
+      });
+      const totalPoints = totalValues.map((value, index) => `${xUp(index)},${yUp(value)}`).join(" ");
+      burnUpSvg += `<polyline points="${totalPoints}" fill="none" stroke="#0f172a" stroke-width="3"><title>Total portfolio</title></polyline>`;
+      [0, Math.floor(years / 2), years].forEach((index, position) => {
+        burnUpSvg += `<text class="chart-axis-label" x="${xUp(index)}" y="${height-8}" text-anchor="${position === 0 ? "start" : position === 2 ? "end" : "middle"}">Age ${currentAge + index}</text>`;
+      });
+      burnUpSvg += `</svg>`;
+      burnUpEl.innerHTML = burnUpSvg;
+      legendEl.innerHTML = series.map(item => `<span style="--legend-color:${item.color}">${escapeHtml(item.name)}</span>`).join("") + '<span style="--legend-color:#0f172a">Total</span>';
+
+      const longevityAge = Math.max(retirementAge + 1, Number(projection.projectedLongevity || profile.lifeExpectancy || retirementAge + 1));
+      const downYears = longevityAge - retirementAge;
+      const downMonths = downYears * 12;
+      let balance = Number(projection.projectedAfterTaxAssets || 0);
+      const balances = [balance];
+      const monthlyIncomes = [];
+      const monthlyExpenses = [];
+      const monthlyMarketReturn = Math.pow(1.04, 1 / 12) - 1;
+      for (let month = 0; month < downMonths; month++) {
+        const age = retirementAge + month / 12;
+        const incomeAdded = calculateMonthlyIncome(Math.floor(age));
+        const expenseDeducted = Number(projection.projectedMonthlyExpenses || 0);
+        monthlyIncomes.push(incomeAdded);
+        monthlyExpenses.push(expenseDeducted);
+        balance = Math.max(0, balance + incomeAdded - expenseDeducted);
+        balance *= 1 + monthlyMarketReturn;
+        balances.push(balance);
+      }
+      const maxBalance = Math.max(1, ...balances) * 1.08;
+      const maxFlow = Math.max(1, ...monthlyIncomes, ...monthlyExpenses);
+      const xDown = index => margin.left + (index / Math.max(1, downMonths)) * (width - margin.left - margin.right);
+      const yDown = value => height - margin.bottom - (value / maxBalance) * (height - margin.top - margin.bottom - 38);
+      let burnDownSvg = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Portfolio burn-down from retirement age ${retirementAge} to longevity age ${longevityAge}"><defs><linearGradient id="burnDownBalanceFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563eb" stop-opacity=".72"></stop><stop offset="100%" stop-color="#93c5fd" stop-opacity=".25"></stop></linearGradient></defs>`;
+      for (let tick = 0; tick <= 4; tick++) {
+        const value = maxBalance * tick / 4;
+        const y = yDown(value);
+        burnDownSvg += `<line class="chart-grid-line" x1="${margin.left}" y1="${y}" x2="${width-margin.right}" y2="${y}"></line><text class="chart-axis-label" x="${margin.left-6}" y="${y+4}" text-anchor="end">${compactValue(value)}</text>`;
+      }
+      const barWidth = Math.max(2, (width - margin.left - margin.right) / Math.max(1, downYears) * .24);
+      for (let year = 0; year < downYears; year++) {
+        const index = year * 12;
+        const amount = monthlyIncomes[index] || 0;
+        const baseY = height - margin.bottom;
+        const barHeight = amount / maxFlow * 30;
+        burnDownSvg += `<rect x="${xDown(index)-barWidth-1}" y="${baseY-barHeight}" width="${barWidth}" height="${barHeight}" fill="#16a34a" opacity=".7"><title>Age ${retirementAge+year} monthly income offset: ${currency(amount)}</title></rect>`;
+        const expenseHeight = Number(monthlyExpenses[index] || 0) / maxFlow * 30;
+        burnDownSvg += `<rect x="${xDown(index)+1}" y="${baseY-expenseHeight}" width="${barWidth}" height="${expenseHeight}" fill="#dc2626" opacity=".7"><title>Age ${retirementAge+year} monthly expenses: ${currency(monthlyExpenses[index] || 0)}</title></rect>`;
+      }
+      const balancePoints = balances.map((value, index) => `${xDown(index)},${yDown(value)}`).join(" ");
+      const balanceArea = `${xDown(0)},${yDown(0)} ${balancePoints} ${xDown(downMonths)},${yDown(0)}`;
+      burnDownSvg += `<polygon points="${balanceArea}" fill="url(#burnDownBalanceFill)" stroke="none"><title>Spendable retirement portfolio from age ${retirementAge} through ${longevityAge}</title></polygon>`;
+      burnDownSvg += `<polyline points="${balancePoints}" fill="none" stroke="#2563eb" stroke-width="3"><title>Spendable portfolio balance</title></polyline>`;
+      burnDownSvg += `<circle cx="${xDown(0)}" cy="${yDown(balances[0])}" r="4" fill="#1d4ed8"><title>Retirement age ${retirementAge}: ${currency(balances[0])}</title></circle>`;
+      burnDownSvg += `<circle cx="${xDown(downMonths)}" cy="${yDown(balances[downMonths])}" r="4" fill="#1d4ed8"><title>Longevity age ${longevityAge}: ${currency(balances[downMonths])}</title></circle>`;
+      [0, Math.floor(downMonths / 2), downMonths].forEach((index, position) => {
+        burnDownSvg += `<text class="chart-axis-label" x="${xDown(index)}" y="${height-8}" text-anchor="${position === 0 ? "start" : position === 2 ? "end" : "middle"}">Age ${Math.round(retirementAge + index / 12)}</text>`;
+      });
+      burnDownSvg += `</svg>`;
+      burnDownEl.innerHTML = burnDownSvg;
     }
 
     function renderScenarios() {
@@ -1739,8 +2050,10 @@
           <td><input type="number" value="${scenario.retirementAge}" data-sid="${scenario.id}" data-key="retirementAge" class="scenario-input" style="width:90px"></td>
           <td>${currency(proj.projectedAssetsAtRetirement)}</td>
           <td>${currency(proj.projectedBeforeTaxAssets)}</td>
-          <td>${currency(proj.projectedAfterTaxAssets)}</td>
+          <td>${currency(proj.projectedTaxedAccountAssets)}</td>
           <td>${currency(proj.projectedMonthlyIncome)}</td>
+          <td>-${currency(proj.projectedMonthlyExpenses)}</td>
+          <td>${currency(proj.projectedNetMonthlyIncome)}</td>
           <td><input type="number" min="${Number(scenario.retirementAge) + 1}" max="110" step="1" value="${proj.projectedLongevity}" data-sid="${scenario.id}" data-key="projectedLongevity" class="scenario-input" style="width:90px" aria-label="Projected longevity for ${escapeHtml(scenario.name)}"></td>
           <td>${proj.retirementReadinessScore}/100</td>
           <td><button class="btn ghost" data-select-scenario="${scenario.id}">Select</button></td>
@@ -1767,38 +2080,59 @@
         const projectedTaxedAssets = Math.max(0, proj.projectedAssetsAtRetirement - proj.projectedBeforeTaxAssets);
         const estimatedRetirementTaxes = proj.projectedBeforeTaxAssets * (proj.estimatedTaxRate / 100);
         const spendableBeforeTaxAssets = proj.projectedBeforeTaxAssets - estimatedRetirementTaxes;
+        const currentMonthlyExpenses = calculateMonthlyExpenses();
+        const expenseInflationYears = Math.max(0, Number(selected.retirementAge) - Number(profile.currentAge));
+        const monthlyRetirementRate = Math.pow(1.04, 1 / 12) - 1;
+        const firstMonthCashAdjustment = proj.retirementIncomeMonthly - proj.projectedMonthlyExpenses;
+        const firstMonthBeforeGrowth = Math.max(0, proj.projectedAfterTaxAssets + firstMonthCashAdjustment);
+        const firstMonthMarketGrowth = firstMonthBeforeGrowth * monthlyRetirementRate;
+        const firstMonthEndingBalance = firstMonthBeforeGrowth + firstMonthMarketGrowth;
         document.getElementById("selectedScenarioDetails").innerHTML = `
-          Retirement age: ${selected.retirementAge}<br>
-          Projected assets: ${currency(proj.projectedAssetsAtRetirement)}<br>
-          Before-tax projected assets: ${currency(proj.projectedBeforeTaxAssets)}<br>
-          After-tax projected assets: ${currency(proj.projectedAfterTaxAssets)}<br>
-          Estimated tax rate applied: ${proj.estimatedTaxRate.toFixed(2)}%<br>
-          Monthly income: ${currency(proj.projectedMonthlyIncome)}<br>
-          Projected longevity target: age ${proj.projectedLongevity}<br>
-          Estimated asset depletion: ${proj.depletionAge >= 110 ? "Beyond age 110" : `age ${proj.depletionAge}`}
+          <strong>${escapeHtml(selected.name)}</strong><br>
+          Retirement age ${selected.retirementAge} · Longevity age ${proj.projectedLongevity}<br>
+          Estimated depletion: ${proj.depletionAge >= 110 ? "Beyond age 110" : `age ${proj.depletionAge}`} · Score ${proj.retirementReadinessScore}/100
         `;
         document.getElementById("selectedScenarioAssetBreakdown").innerHTML = `
-          <strong>How the asset values are calculated</strong>
-          <p style="margin:8px 0 0">
-            <strong>Projected Assets</strong> is the gross total before retirement taxes:
-            ${currency(proj.projectedBeforeTaxAssets)} in pre-tax accounts plus
-            ${currency(projectedTaxedAssets)} in Roth/taxed accounts equals
-            ${currency(proj.projectedAssetsAtRetirement)}.
-          </p>
-          <p style="margin:8px 0 0">
-            <strong>Before-Tax Assets</strong> is only the portion held in accounts such as a
-            401(k) or Traditional IRA. Applying the ${proj.estimatedTaxRate.toFixed(2)}%
-            estimated retirement tax rate subtracts ${currency(estimatedRetirementTaxes)},
-            leaving ${currency(spendableBeforeTaxAssets)} from those accounts.
-          </p>
-          <p style="margin:8px 0 0">
-            <strong>After-Tax Assets</strong> is the estimated spendable total:
-            ${currency(spendableBeforeTaxAssets)} from pre-tax accounts after estimated taxes plus
-            ${currency(projectedTaxedAssets)} from Roth/taxed accounts equals
-            ${currency(proj.projectedAfterTaxAssets)}.
-          </p>
+          <div class="portfolio-breakdown">
+            <div class="portfolio-breakdown-section">
+              <h4>1. Starting portfolio at retirement</h4>
+              <div class="portfolio-flow-row increase"><span>Before-tax asset bucket</span><span class="amount">+${currency(proj.projectedBeforeTaxAssets)}</span></div>
+              <div class="portfolio-flow-row increase"><span>After-tax asset bucket</span><span class="amount">+${currency(projectedTaxedAssets)}</span></div>
+              <div class="portfolio-flow-row total"><span>Gross projected assets</span><span class="amount">${currency(proj.projectedAssetsAtRetirement)}</span></div>
+              <div class="portfolio-flow-row decrease"><span>Estimated retirement taxes (${proj.estimatedTaxRate.toFixed(2)}%)</span><span class="amount">-${currency(estimatedRetirementTaxes)}</span></div>
+              <div class="portfolio-flow-row total"><span>Spendable starting balance</span><span class="amount">${currency(proj.projectedAfterTaxAssets)}</span></div>
+              <p class="portfolio-flow-note">The spendable balance combines ${currency(spendableBeforeTaxAssets)} from pre-tax accounts after estimated taxes with ${currency(projectedTaxedAssets)} from Roth and other after-tax accounts.</p>
+            </div>
+
+            <div class="portfolio-breakdown-section">
+              <h4>2. Monthly increases and decreases</h4>
+              <div class="portfolio-flow-row increase"><span>Income sources added</span><span class="amount">+${currency(proj.retirementIncomeMonthly)}</span></div>
+              <div class="portfolio-flow-row decrease"><span>Inflation-adjusted expenses deducted</span><span class="amount">-${currency(proj.projectedMonthlyExpenses)}</span></div>
+              <div class="portfolio-flow-row ${firstMonthCashAdjustment >= 0 ? "increase" : "decrease"}"><span>Net monthly cash adjustment</span><span class="amount">${firstMonthCashAdjustment >= 0 ? "+" : "-"}${currency(Math.abs(firstMonthCashAdjustment))}</span></div>
+              <div class="portfolio-flow-row increase"><span>First-month market growth (${(monthlyRetirementRate * 100).toFixed(3)}%)</span><span class="amount">+${currency(firstMonthMarketGrowth)}</span></div>
+              <div class="portfolio-flow-row total"><span>Estimated balance after month one</span><span class="amount">${currency(firstMonthEndingBalance)}</span></div>
+              <p class="portfolio-flow-note">Each following month repeats this order: add applicable income, subtract expenses, then apply the monthly equivalent of the 4% annual market return to the remaining balance.</p>
+            </div>
+
+            <div class="portfolio-breakdown-section">
+              <h4>3. Why projected expenses are higher</h4>
+              <div class="portfolio-flow-row"><span>Expenses entered today</span><span class="amount">${currency(currentMonthlyExpenses)}</span></div>
+              <div class="portfolio-flow-row decrease"><span>${Number(profile.inflationRate || 0).toFixed(1)}% inflation for ${expenseInflationYears} years</span><span class="amount">→ ${currency(proj.projectedMonthlyExpenses)}</span></div>
+              <p class="portfolio-flow-note">The expense total is projected from age ${profile.currentAge} to retirement age ${selected.retirementAge} before monthly deductions begin.</p>
+            </div>
+
+            <div class="portfolio-breakdown-section">
+              <h4>4. Success score impact</h4>
+              <div class="portfolio-flow-row increase"><span>Income coverage versus expenses</span><span class="amount">45%</span></div>
+              <div class="portfolio-flow-row increase"><span>Spendable assets versus funding target</span><span class="amount">35%</span></div>
+              <div class="portfolio-flow-row increase"><span>Portfolio coverage through longevity</span><span class="amount">20%</span></div>
+              <div class="portfolio-flow-row total"><span>Current success score</span><span class="amount">${proj.retirementReadinessScore}/100</span></div>
+              <p class="portfolio-flow-note">Income and market growth increase the balance and support the score. Taxes, expenses, and earlier depletion reduce spendable assets and lower the score.</p>
+            </div>
+          </div>
         `;
         setStatusElement(document.getElementById("selectedScenarioStatus"), proj.retirementReadinessScore);
+        renderSelectedScenarioCharts(selected, proj);
       }
     }
 
@@ -1825,7 +2159,8 @@
       goals = goals.map(goal => {
         if (goal.id !== id) return goal;
         let value = e.target.value;
-        if (e.target.type === "number") value = Number(value);
+        if (e.target.hasAttribute("data-currency")) value = parseCurrency(value);
+        else if (e.target.type === "number") value = Number(value);
         return { ...goal, [field]: value };
       });
       saveToLocalStorage(STORAGE_KEYS.goals, goals);
@@ -1842,62 +2177,218 @@
     }
 
     function handleIncomeChange() {
-      income = {
-        monthlySalary: Number(document.getElementById("monthlySalary").value || 0),
-        monthlyBonus: Number(document.getElementById("monthlyBonus").value || 0),
-        monthlyRentalIncome: Number(document.getElementById("monthlyRentalIncome").value || 0),
-        monthlyOtherIncome: Number(document.getElementById("monthlyOtherIncome").value || 0),
-        socialSecurityMonthly: Number(document.getElementById("socialSecurityMonthly").value || 0),
-        pensionMonthly: Number(document.getElementById("pensionMonthly").value || 0),
+      const sourceType = document.getElementById("incomeSourceType").value;
+      const annualAmount = parseCurrency(document.getElementById("incomeAnnualAmount").value);
+      const monthlyAmount = annualAmount / 12;
+      const isPension = sourceType === "pension";
+      const startValue = document.getElementById(isPension ? "pensionMonthlyStartAge" : "incomeStartAge").value;
+      const endValue = document.getElementById(isPension ? "pensionMonthlyEndAge" : "incomeEndAge").value;
+      const updatedIncome = {
+        ...income,
+        selectedIncomeSource: sourceType,
+        incomeDurations: {
+          ...income.incomeDurations,
+          [sourceType]: {
+            startAge: startValue === "" ? null : Number(startValue),
+            endAge: endValue === "" ? null : Number(endValue)
+          }
+        },
         pensionMode: document.getElementById("pensionModeLumpSum").checked ? "lumpSum" : "monthly",
-        pensionLumpSum: Number(document.getElementById("pensionLumpSum").value || 0),
-        pensionLumpSumAge: Number(document.getElementById("pensionLumpSumAge").value || 0)
+        pensionLumpSum: parseCurrency(document.getElementById("pensionLumpSum").value),
+        pensionLumpSumAge: document.getElementById("pensionLumpSumAge").value === ""
+          ? null
+          : Number(document.getElementById("pensionLumpSumAge").value)
       };
+      if (sourceType === "salary") {
+        updatedIncome.monthlySalary = monthlyAmount;
+        updatedIncome.monthlyBonus = 0;
+      } else if (sourceType === "rental") updatedIncome.monthlyRentalIncome = monthlyAmount;
+      else if (sourceType === "pension") updatedIncome.pensionMonthly = parseCurrency(document.getElementById("pensionMonthlyAmount").value);
+      else if (sourceType === "socialSecurity") updatedIncome.socialSecurityMonthly = monthlyAmount;
+      else if (sourceType === "other") updatedIncome.monthlyOtherIncome = monthlyAmount;
+      income = updatedIncome;
       saveToLocalStorage(STORAGE_KEYS.income, income);
       refreshAll(false);
     }
 
+    function renderIncomeTable() {
+      const tbody = document.getElementById("incomeTableBody");
+      const selectedScenario = scenarios.find(s => s.id === selectedScenarioId) || scenarios[0];
+      const longevityAge = Number(selectedScenario?.projectedLongevity || profile.lifeExpectancy || 110);
+      const currentAge = Number(profile.currentAge || 0);
+      const labels = {
+        salary: "Salary",
+        rental: "Rental Income",
+        pension: "Pension",
+        socialSecurity: "Social Security",
+        other: "Other"
+      };
+      const monthlyAmounts = {
+        salary: Number(income.monthlySalary || 0) + Number(income.monthlyBonus || 0),
+        rental: Number(income.monthlyRentalIncome || 0),
+        pension: income.pensionMode === "monthly" ? Number(income.pensionMonthly || 0) : 0,
+        socialSecurity: Number(income.socialSecurityMonthly || 0),
+        other: Number(income.monthlyOtherIncome || 0)
+      };
+      const rows = Object.keys(labels).flatMap(type => {
+        if (type === "pension" && income.pensionMode === "lumpSum") {
+          const lumpSum = Number(income.pensionLumpSum || 0);
+          if (!lumpSum) return [];
+          const payoutAge = Number(income.pensionLumpSumAge || profile.retirementAge || currentAge);
+          return [{ type, annual: lumpSum, monthly: null, startAge: payoutAge, endAge: payoutAge }];
+        }
+        const monthly = monthlyAmounts[type];
+        if (!monthly) return [];
+        const duration = income.incomeDurations?.[type] || {};
+        return [{
+          type,
+          annual: monthly * 12,
+          monthly,
+          startAge: duration.startAge ?? currentAge,
+          endAge: duration.endAge ?? longevityAge
+        }];
+      });
+
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;padding:28px">No income has been entered yet.</td></tr>';
+      } else {
+        tbody.innerHTML = rows.map(row => `
+          <tr>
+            <td>${labels[row.type]}</td>
+            <td>${currency(row.annual)}</td>
+            <td>${row.monthly === null ? "—" : currency(row.monthly)}</td>
+            <td>${row.startAge}</td>
+            <td>${row.endAge}</td>
+            <td><div class="account-actions"><button class="btn secondary" data-modify-income="${row.type}">Modify</button><button class="btn ghost" data-delete-income="${row.type}">Delete</button></div></td>
+          </tr>
+        `).join("");
+      }
+      const monthlyTotal = rows.reduce((sum, row) => sum + Number(row.monthly || 0), 0);
+      document.getElementById("incomeMonthlyTotal").textContent = currency(monthlyTotal);
+
+      tbody.querySelectorAll("[data-modify-income]").forEach(button => {
+        button.addEventListener("click", () => loadIncomeForModification(button.getAttribute("data-modify-income")));
+      });
+      tbody.querySelectorAll("[data-delete-income]").forEach(button => {
+        button.addEventListener("click", () => deleteIncomeSource(button.getAttribute("data-delete-income")));
+      });
+    }
+
+    function loadIncomeForModification(sourceType) {
+      income.selectedIncomeSource = sourceType;
+      saveToLocalStorage(STORAGE_KEYS.income, income);
+      populateIncomeSourceEditor();
+      formatCurrencyInputs(document.getElementById("income-panel"));
+      document.getElementById("incomeSourceType").focus();
+      document.getElementById("income-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function deleteIncomeSource(sourceType) {
+      const updatedIncome = {
+        ...income,
+        incomeDurations: {
+          ...income.incomeDurations,
+          [sourceType]: { startAge: null, endAge: null }
+        }
+      };
+      if (sourceType === "salary") {
+        updatedIncome.monthlySalary = 0;
+        updatedIncome.monthlyBonus = 0;
+      } else if (sourceType === "rental") updatedIncome.monthlyRentalIncome = 0;
+      else if (sourceType === "socialSecurity") updatedIncome.socialSecurityMonthly = 0;
+      else if (sourceType === "other") updatedIncome.monthlyOtherIncome = 0;
+      else if (sourceType === "pension") {
+        updatedIncome.pensionMonthly = 0;
+        updatedIncome.pensionLumpSum = 0;
+        updatedIncome.pensionLumpSumAge = null;
+      }
+      income = updatedIncome;
+      saveToLocalStorage(STORAGE_KEYS.income, income);
+      refreshAll();
+      showMessage(`${labelsForIncomeSource(sourceType)} deleted.`);
+    }
+
+    function labelsForIncomeSource(sourceType) {
+      return {
+        salary: "Salary",
+        rental: "Rental Income",
+        pension: "Pension",
+        socialSecurity: "Social Security",
+        other: "Other"
+      }[sourceType] || "Income";
+    }
+
     function handleExpensesChange() {
       expenses = {
-        monthlyHousing: Number(document.getElementById("monthlyHousing").value || 0),
-        monthlyFood: Number(document.getElementById("monthlyFood").value || 0),
-        monthlyTransportation: Number(document.getElementById("monthlyTransportation").value || 0),
-        monthlyHealthcare: Number(document.getElementById("monthlyHealthcare").value || 0),
-        monthlyDebtPayments: Number(document.getElementById("monthlyDebtPayments").value || 0),
-        monthlyOtherExpenses: Number(document.getElementById("monthlyOtherExpenses").value || 0)
+        monthlyHousing: parseCurrency(document.getElementById("monthlyHousing").value),
+        monthlyFood: parseCurrency(document.getElementById("monthlyFood").value),
+        monthlyTransportation: parseCurrency(document.getElementById("monthlyTransportation").value),
+        monthlyHealthcare: parseCurrency(document.getElementById("monthlyHealthcare").value),
+        monthlyDebtPayments: parseCurrency(document.getElementById("monthlyDebtPayments").value),
+        monthlyOtherExpenses: parseCurrency(document.getElementById("monthlyOtherExpenses").value),
+        monthlyTravel: parseCurrency(document.getElementById("monthlyTravel").value)
       };
       saveToLocalStorage(STORAGE_KEYS.expenses, expenses);
       refreshAll(false);
     }
 
+    function loadAccountForModification(accountId) {
+      const account = accounts.find(item => item.id === accountId);
+      if (!account) return;
+      const continuing = account.continuingContributions ??
+        (Number(account.annualContribution || 0) > 0 || Number(account.employerContribution || 0) > 0);
+      editingAccountId = account.id;
+      document.getElementById("newAccountName").value = account.name || "";
+      document.getElementById("newAccountType").value = account.type;
+      document.getElementById("newAccountTaxTreatment").value = accountTaxTreatmentLabel(account.type);
+      document.getElementById("newAccountBalance").value = Number(account.balance || 0);
+      document.getElementById("newAccountContinuingContributions").checked = continuing;
+      document.getElementById("newAccountContributionFields").hidden = !continuing;
+      document.getElementById("newAccountContribution").value = Number(account.annualContribution || 0);
+      document.getElementById("newAccountEmployerContribution").value = Number(account.employerContribution || 0);
+      document.getElementById("newAccountReturn").value = Number(account.expectedReturn || 0);
+      formatCurrencyInputs(document.getElementById("accounts-panel"));
+      document.getElementById("addAccountBtn").textContent = "Update Account";
+      document.getElementById("cancelAccountEditBtn").hidden = false;
+      document.getElementById("accountEditNotice").hidden = false;
+      document.getElementById("accountEditName").textContent = account.name || "this account";
+      document.getElementById("accounts-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+      document.getElementById("newAccountName").focus();
+    }
+
     function addAccount() {
       const continuingContributions = document.getElementById("newAccountContinuingContributions").checked;
       const account = {
-        id: uuid(),
+        id: editingAccountId || uuid(),
         name: document.getElementById("newAccountName").value || "New Account",
         type: document.getElementById("newAccountType").value,
         contributionTaxTreatment: accountTaxTreatment(document.getElementById("newAccountType").value),
-        balance: Number(document.getElementById("newAccountBalance").value || 0),
+        balance: parseCurrency(document.getElementById("newAccountBalance").value),
         continuingContributions,
-        annualContribution: continuingContributions ? Number(document.getElementById("newAccountContribution").value || 0) : 0,
-        employerContribution: continuingContributions ? Number(document.getElementById("newAccountEmployerContribution").value || 0) : 0,
+        annualContribution: continuingContributions ? parseCurrency(document.getElementById("newAccountContribution").value) : 0,
+        employerContribution: continuingContributions ? parseCurrency(document.getElementById("newAccountEmployerContribution").value) : 0,
         expectedReturn: Number(document.getElementById("newAccountReturn").value || 0),
-        taxAdvantaged: document.getElementById("newAccountTaxAdvantaged").value === "yes"
+        taxAdvantaged: ["401k", "ira", "403b", "457b", "hsa", "roth"].includes(document.getElementById("newAccountType").value)
       };
-      accounts.push(account);
+      if (editingAccountId) {
+        accounts = accounts.map(existing => existing.id === editingAccountId ? account : existing);
+      } else {
+        accounts.push(account);
+      }
+      const wasEditing = Boolean(editingAccountId);
       saveToLocalStorage(STORAGE_KEYS.accounts, accounts);
       clearAccountForm();
       refreshAll();
-      showMessage("Account added and saved.");
+      showMessage(wasEditing ? "Account updated and saved." : "Account added and saved.");
     }
 
     function addGoal() {
       const goal = {
         id: uuid(),
         name: document.getElementById("newGoalName").value || "New Goal",
-        targetAmount: Number(document.getElementById("newGoalTarget").value || 0),
-        currentAmount: Number(document.getElementById("newGoalCurrent").value || 0),
-        monthlyContribution: Number(document.getElementById("newGoalContribution").value || 0),
+        targetAmount: parseCurrency(document.getElementById("newGoalTarget").value),
+        currentAmount: parseCurrency(document.getElementById("newGoalCurrent").value),
+        monthlyContribution: parseCurrency(document.getElementById("newGoalContribution").value),
         notes: document.getElementById("newGoalNotes").value || ""
       };
       goals.push(goal);
@@ -1934,13 +2425,19 @@
     }
 
     function clearAccountForm() {
+      editingAccountId = null;
       document.getElementById("newAccountName").value = "";
+      document.getElementById("newAccountType").value = "401k";
+      document.getElementById("newAccountTaxTreatment").value = accountTaxTreatmentLabel("401k");
       document.getElementById("newAccountBalance").value = "";
       document.getElementById("newAccountContinuingContributions").checked = false;
       document.getElementById("newAccountContribution").value = "";
       document.getElementById("newAccountEmployerContribution").value = "";
       document.getElementById("newAccountContributionFields").hidden = true;
       document.getElementById("newAccountReturn").value = "";
+      document.getElementById("addAccountBtn").textContent = "Add Account";
+      document.getElementById("cancelAccountEditBtn").hidden = true;
+      document.getElementById("accountEditNotice").hidden = true;
     }
 
     function clearGoalForm() {
@@ -1984,6 +2481,7 @@
       populateInputs();
       updateDashboard();
       renderAccounts();
+      renderIncomeTable();
       renderGoals();
       renderScenarios();
       if (showToast) {
@@ -1991,62 +2489,96 @@
       }
     }
 
-    function bindTabs() {
-      document.querySelectorAll("[data-panel]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const panel = btn.getAttribute("data-panel");
+    function activatePage(page) {
+      const sectionPages = ["dashboard", "profile", "accounts", "income", "expenses", "goals"];
+      const titles = {
+        dashboard: "Overview",
+        profile: "Profile",
+        accounts: "Accounts",
+        income: "Income",
+        expenses: "Expenses",
+        goals: "Goals",
+        scenarios: "Scenarios",
+        assistant: "AI Assistant"
+      };
+      const subtitles = {
+        dashboard: "Track accounts, cash flow, goals, and retirement projections in real time.",
+        profile: "Set the personal assumptions used throughout your retirement plan.",
+        accounts: "Add and manage the accounts that fund your retirement projection.",
+        income: "Record current income and expected retirement income sources.",
+        expenses: "Build a clear monthly spending baseline for your plan.",
+        goals: "Track savings goals separately from your retirement accounts.",
+        scenarios: "Compare retirement ages, projected assets, longevity, and readiness.",
+        assistant: "Ask questions and get explanations based on your saved plan."
+      };
 
-          document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
+      document.querySelectorAll(".dashboard-page").forEach(el => {
+        el.hidden = page !== "dashboard";
+      });
+      document.querySelector(".section-page-card").hidden = !sectionPages.includes(page);
+      document.getElementById("scenarios-page").hidden = page !== "scenarios";
+      document.getElementById("assistant-panel").hidden = page !== "assistant";
 
-          document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
-          document.getElementById(panel + "-panel").classList.add("active");
-
-          document.querySelectorAll(".nav-btn").forEach(n => {
-            n.classList.toggle("active", n.getAttribute("data-tab") === panel);
-          });
-
-          document.querySelector(".topbar h2").textContent =
-            panel.charAt(0).toUpperCase() + panel.slice(1);
-        });
+      document.querySelectorAll(".tab-panel").forEach(panel => {
+        panel.classList.toggle("active", panel.id === `${page}-panel`);
+      });
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.getAttribute("data-panel") === page);
+      });
+      document.querySelectorAll(".nav-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.getAttribute("data-tab") === page);
       });
 
+      document.querySelector(".topbar h2").textContent = titles[page] || "Overview";
+      document.querySelector(".topbar .sub").textContent = subtitles[page] || subtitles.dashboard;
+      document.querySelector(".main").scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function bindTabs() {
+      document.querySelectorAll("[data-panel]").forEach(btn => {
+        btn.addEventListener("click", () => activatePage(btn.getAttribute("data-panel")));
+      });
       document.querySelectorAll(".nav-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const tab = btn.getAttribute("data-tab");
-          const linked = document.querySelector(`.tab-btn[data-panel="${tab}"]`);
-          if (linked) linked.click();
-          if (tab === "assistant") {
-            document.querySelector(".topbar h2").textContent = "AI Assistant";
-          }
-        });
+        btn.addEventListener("click", () => activatePage(btn.getAttribute("data-tab")));
       });
     }
 
     function bindLiveInputs() {
-      ["profileCurrentAge","profileCurrentAnnualIncome","profileTargetRetirementIncomePercent"].forEach(id => {
+      ["profileCurrentAge","profileTargetRetirementIncomePercent"].forEach(id => {
         document.getElementById(id).addEventListener("input", handleProfileChange);
       });
+      document.getElementById("profileCurrentAnnualIncome").addEventListener("change", handleProfileChange);
       document.getElementById("profileTaxRateOverride").addEventListener("change", handleTaxRateOverrideToggle);
       document.getElementById("profileEstimatedTaxRate").addEventListener("input", handleTaxRateOverrideInput);
 
-      [
-        "monthlySalary","monthlyBonus","monthlyRentalIncome","monthlyOtherIncome",
-        "socialSecurityMonthly","pensionMonthly","pensionLumpSum","pensionLumpSumAge"
-      ].forEach(id => {
-        document.getElementById(id).addEventListener("input", handleIncomeChange);
+      document.getElementById("incomeSourceType").addEventListener("change", (e) => {
+        income.selectedIncomeSource = e.target.value;
+        saveToLocalStorage(STORAGE_KEYS.income, income);
+        populateIncomeSourceEditor();
+        formatCurrencyInputs(document.getElementById("income-panel"));
       });
-
-      ["pensionModeMonthly","pensionModeLumpSum"].forEach(id => {
+      ["incomeAnnualAmount", "incomeStartAge", "incomeEndAge", "pensionLumpSum", "pensionLumpSumAge", "pensionMonthlyAmount", "pensionMonthlyStartAge", "pensionMonthlyEndAge"].forEach(id => {
         document.getElementById(id).addEventListener("change", handleIncomeChange);
       });
 
-      ["monthlyHousing","monthlyFood","monthlyTransportation","monthlyHealthcare","monthlyDebtPayments","monthlyOtherExpenses"].forEach(id => {
-        document.getElementById(id).addEventListener("input", handleExpensesChange);
+      ["pensionModeMonthly","pensionModeLumpSum"].forEach(id => {
+        document.getElementById(id).addEventListener("change", () => {
+          updatePensionPaymentFields();
+          handleIncomeChange();
+        });
       });
+
+      ["monthlyHousing","monthlyFood","monthlyTransportation","monthlyHealthcare","monthlyDebtPayments","monthlyOtherExpenses","monthlyTravel"].forEach(id => {
+        document.getElementById(id).addEventListener("change", handleExpensesChange);
+      });
+      bindCurrencyInputs();
     }
 
     document.getElementById("addAccountBtn").addEventListener("click", addAccount);
+    document.getElementById("cancelAccountEditBtn").addEventListener("click", () => {
+      clearAccountForm();
+      showMessage("Account modification canceled.");
+    });
     document.getElementById("newAccountType").addEventListener("change", (e) => {
       document.getElementById("newAccountTaxTreatment").value = accountTaxTreatmentLabel(e.target.value);
     });
@@ -2133,10 +2665,8 @@
       bindTabs();
       bindLiveInputs();
       refreshAll();
+      activatePage("dashboard");
 
-      // Ensure correct initial tab labels and state
-      document.getElementById("pensionModeMonthly").checked = income.pensionMode === "monthly";
-      document.getElementById("pensionModeLumpSum").checked = income.pensionMode === "lumpSum";
     }
 
     init();
