@@ -140,6 +140,15 @@
     }
 
     .nav-btn.active .nav-dot{background:#60a5fa}
+    .nav-btn.under-construction,
+    .nav-btn:disabled{
+      color:#64748b;
+      background:rgba(148,163,184,.06);
+      cursor:not-allowed;
+      opacity:.72;
+    }
+    .nav-btn.under-construction .nav-dot{background:#475569}
+    .nav-construction-label{font-size:.72rem;font-style:italic;color:#94a3b8;margin-left:auto}
 
     .sidebar-footer{
       margin-top:24px;
@@ -393,8 +402,34 @@
     .scenario-chart-card .chart-note{margin:0 0 8px;color:var(--muted);font-size:.75rem}
     .scenario-chart{height:225px}
     .scenario-chart svg{width:100%;height:100%;display:block}
+    .chart-hover-point{fill:transparent;stroke:transparent;stroke-width:8;cursor:crosshair}
+    .chart-hover-point:hover,.chart-hover-point:focus{fill:#fff;stroke:currentColor;stroke-width:3;outline:none}
+    .chart-flow-hit{fill:transparent;cursor:help}
+    .svg-chart-tooltip{display:none;pointer-events:none}
+    .chart-hover-group:hover .svg-chart-tooltip,.chart-hover-group:focus-within .svg-chart-tooltip{display:block}
+    .svg-chart-tooltip rect{fill:#0f172a;stroke:#fff;stroke-width:1;rx:6}
+    .svg-chart-tooltip text{fill:#fff;font-size:10px;font-weight:650}
     .scenario-chart-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:7px;font-size:.72rem;color:var(--muted)}
     .scenario-chart-legend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--legend-color);margin-right:4px}
+    .scenario-comparison-list{display:grid;gap:16px;margin-top:16px}
+    .scenario-comparison-card{border:1px solid var(--border);border-radius:16px;background:#fff;overflow:hidden;box-shadow:0 3px 12px rgba(15,23,42,.05)}
+    .scenario-comparison-row{display:grid;gap:14px;padding:15px 16px;align-items:end}
+    .scenario-comparison-row + .scenario-comparison-row{border-top:1px solid var(--border)}
+    .scenario-assets-row{grid-template-columns:repeat(3,minmax(150px,1fr)) auto;background:#f8fafc}
+    .scenario-filters-row{grid-template-columns:minmax(170px,1fr) minmax(250px,1.5fr) minmax(150px,.8fr) minmax(120px,.7fr) repeat(2,minmax(110px,.65fr))}
+    .scenario-results-row{grid-template-columns:repeat(4,minmax(135px,1fr))}
+    .scenario-row-heading{grid-column:1/-1;margin:0 0 1px;font-size:.92rem;font-weight:800;color:var(--text)}
+    .scenario-row-note{grid-column:1/-1;margin:-4px 0 0;color:var(--muted);font-size:.75rem}
+    .scenario-metric{min-width:0}
+    .scenario-metric-label{display:block;margin-bottom:5px;color:var(--muted);font-size:.72rem;font-weight:700;letter-spacing:.02em;text-transform:uppercase}
+    .scenario-metric-value{display:block;font-size:1rem;font-weight:750;color:var(--text)}
+    .scenario-metric-context{display:block;margin-top:3px;color:var(--muted);font-size:.75rem;font-weight:600}
+    .scenario-name-value{font-size:1.08rem}
+    .scenario-results-row .scenario-metric:last-child .scenario-metric-value{color:var(--primary);font-size:1.15rem}
+    .scenario-age-input{width:100%;max-width:110px}
+    .dollar-basis-toggle button{padding-inline:12px}
+    @media(max-width:1050px){.scenario-assets-row,.scenario-filters-row,.scenario-results-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:650px){.scenario-assets-row,.scenario-filters-row,.scenario-results-row{grid-template-columns:1fr}.scenario-comparison-row{align-items:stretch}}
     .portfolio-breakdown{display:grid;gap:12px}
     .portfolio-breakdown-section{border:1px solid var(--border);border-radius:12px;background:#fff;padding:12px}
     .portfolio-breakdown-section h4{margin:0 0 8px;font-size:.9rem}
@@ -470,6 +505,9 @@
       font-size:.88rem;
       font-weight:600;
     }
+    .yes-no-toggle{display:inline-flex;padding:2px;border:1px solid var(--border);border-radius:999px;background:#f3f4f6;white-space:nowrap}
+    .yes-no-toggle button{border:0;background:transparent;color:var(--muted);padding:5px 9px;border-radius:999px;font:inherit;font-size:.75rem;font-weight:700;cursor:pointer}
+    .yes-no-toggle button.active{background:#fff;color:var(--primary);box-shadow:0 1px 3px rgba(15,23,42,.16)}
 
     .radio-group{
       display:flex;
@@ -532,12 +570,12 @@
 
       <div class="nav-group">
         <div class="nav-title">Navigation</div>
-        <button class="nav-btn active" data-tab="dashboard"><span class="nav-dot"></span>Overview</button>
-        <button class="nav-btn" data-tab="profile"><span class="nav-dot"></span>Profile</button>
+        <button class="nav-btn under-construction" data-tab="dashboard" disabled aria-disabled="true"><span class="nav-dot"></span>Overview <span class="nav-construction-label">(Under Construction)</span></button>
+        <button class="nav-btn active" data-tab="profile"><span class="nav-dot"></span>Profile</button>
         <button class="nav-btn" data-tab="accounts"><span class="nav-dot"></span>Accounts</button>
         <button class="nav-btn" data-tab="income"><span class="nav-dot"></span>Income</button>
         <button class="nav-btn" data-tab="expenses"><span class="nav-dot"></span>Expenses</button>
-        <button class="nav-btn" data-tab="goals"><span class="nav-dot"></span>Goals</button>
+        <button class="nav-btn under-construction" data-tab="goals" disabled aria-disabled="true"><span class="nav-dot"></span>Goals <span class="nav-construction-label">(Under Construction)</span></button>
         <button class="nav-btn" data-tab="scenarios"><span class="nav-dot"></span>Scenarios</button>
         <button class="nav-btn" data-tab="assistant"><span class="nav-dot"></span>AI Assistant</button>
       </div>
@@ -989,26 +1027,7 @@
             <button class="btn secondary" id="exportComparisonBtn">Export Comparison</button>
           </div>
 
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Scenario</th>
-                  <th>Retirement Age</th>
-                  <th>Total Projected Assets</th>
-                  <th>Before-Tax Asset Bucket</th>
-                  <th>After-Tax Asset Bucket</th>
-                  <th>Monthly Income (+)</th>
-                  <th>Monthly Expenses (-)</th>
-                  <th>Net Monthly</th>
-                  <th>Projected Longevity</th>
-                  <th>Score</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="scenarioTableBody"></tbody>
-            </table>
-          </div>
+          <div id="scenarioTableBody" class="scenario-comparison-list" aria-label="Scenario comparison"></div>
 
           <div style="margin-top:16px" class="panel">
             <h3>Selected Scenario</h3>
@@ -1028,10 +1047,11 @@
                   </div>
                   <div class="scenario-chart-card">
                     <h4>Portfolio Burn-Down</h4>
-                    <p class="chart-note">Monthly portfolio path through longevity: income is added, expenses are deducted, and the remaining balance receives market growth</p>
+                    <p class="chart-note">Compare portfolio longevity using entered expenses versus the target retirement lifestyle; both paths add eligible income and apply market growth</p>
                     <div id="selectedScenarioBurnDownChart" class="scenario-chart"></div>
                     <div class="scenario-chart-legend">
-                      <span style="--legend-color:#2563eb">Portfolio balance</span>
+                      <span style="--legend-color:#2563eb">Based on entered expenses</span>
+                      <span style="--legend-color:#f59e0b">Based on target lifestyle</span>
                       <span style="--legend-color:#16a34a">Income added</span>
                       <span style="--legend-color:#dc2626">Expenses deducted</span>
                     </div>
@@ -1147,6 +1167,9 @@
         pensionMode: "monthly",
         pensionLumpSum: 150000,
         pensionLumpSumAge: 67,
+        includeSocialSecurity: true,
+        includePension: true,
+        cashFlowDollarBasis: "inflation",
         projectedLongevity: 95
       }
     ];
@@ -1264,12 +1287,12 @@
       }, 0);
     }
 
-    function incomeSourceIsActive(sourceType, age) {
+    function incomeSourceIsActive(sourceType, age, scenario = null) {
       const duration = income.incomeDurations?.[sourceType] || {};
       const startAge = duration.startAge === null || duration.startAge === "" || duration.startAge === undefined
         ? 0
         : Number(duration.startAge);
-      const selectedScenario = scenarios.find(s => s.id === selectedScenarioId) || scenarios[0];
+      const selectedScenario = scenario || scenarios.find(s => s.id === selectedScenarioId) || scenarios[0];
       const defaultEndAge = Number(selectedScenario?.projectedLongevity || profile.lifeExpectancy || 110);
       const endAge = duration.endAge === null || duration.endAge === "" || duration.endAge === undefined
         ? defaultEndAge
@@ -1277,16 +1300,22 @@
       return age >= startAge && age <= endAge;
     }
 
-    function calculateMonthlyIncome(age = Number(profile.currentAge || 0)) {
-      const sources = {
+    function monthlyIncomeSources() {
+      return {
         salary: Number(income.monthlySalary || 0) + Number(income.monthlyBonus || 0),
         rental: Number(income.monthlyRentalIncome || 0),
         pension: income.pensionMode === "monthly" ? Number(income.pensionMonthly || 0) : 0,
         socialSecurity: Number(income.socialSecurityMonthly || 0),
         other: Number(income.monthlyOtherIncome || 0)
       };
+    }
+
+    function calculateMonthlyIncome(age = Number(profile.currentAge || 0), scenario = null) {
+      const sources = monthlyIncomeSources();
       return Object.entries(sources).reduce((sum, [type, amount]) =>
-        sum + (incomeSourceIsActive(type, age) ? amount : 0), 0);
+        sum + (incomeSourceIsActive(type, age, scenario)
+          && !(type === "socialSecurity" && scenario?.includeSocialSecurity === false)
+          && !(type === "pension" && scenario?.includePension === false) ? amount : 0), 0);
     }
 
     function getIncomeSourceAnnualAmount(sourceType) {
@@ -1362,22 +1391,6 @@
       for (let year = 0; year < yearsToRetirement; year++) {
         beforeTaxBalance = beforeTaxBalance * (1 + annualRate) + beforeTaxAnnualContribution;
         taxedAccountBalance = taxedAccountBalance * (1 + annualRate) + taxedAnnualContribution;
-      }
-
-      // Lump sum pension gets added at retirement age
-      if (p.pensionMode === "lumpSum" && p.pensionLumpSum > 0) {
-        const payoutAge = Math.max(p.retirementAge, p.pensionLumpSumAge);
-        if (payoutAge <= p.retirementAge) {
-          beforeTaxBalance += p.pensionLumpSum;
-        } else {
-          // if payout is after retirement age, grow until payout age and then add
-          const extraYears = payoutAge - p.retirementAge;
-          for (let year = 0; year < extraYears; year++) {
-            beforeTaxBalance = beforeTaxBalance * (1 + annualRate);
-            taxedAccountBalance = taxedAccountBalance * (1 + annualRate);
-          }
-          beforeTaxBalance += p.pensionLumpSum;
-        }
       }
 
       const projectedBeforeTaxAssets = Math.max(0, beforeTaxBalance);
@@ -1463,30 +1476,27 @@
       let beforeTaxBalance = projectedAccounts.beforeTaxBalance;
       let afterTaxBalance = projectedAccounts.afterTaxBalance;
 
-      if (scenario.pensionMode === "lumpSum" && Number(scenario.pensionLumpSum || 0) > 0) {
-        const payoutAge = Math.max(retirementAge, Number(scenario.pensionLumpSumAge || retirementAge));
-        if (payoutAge <= retirementAge) {
-          beforeTaxBalance += Number(scenario.pensionLumpSum || 0);
-        } else {
-          const extraYears = payoutAge - retirementAge;
-          for (let year = 0; year < extraYears; year++) {
-            beforeTaxBalance = beforeTaxBalance * (1 + fallbackAnnualRate);
-            afterTaxBalance = afterTaxBalance * (1 + fallbackAnnualRate);
-          }
-          beforeTaxBalance += Number(scenario.pensionLumpSum || 0);
-        }
-      }
-
-      const retirementIncomeMonthly = calculateMonthlyIncome(retirementAge);
+      const pensionLumpSumIncluded = scenario.includePension !== false
+        && income.pensionMode === "lumpSum"
+        && Number(income.pensionLumpSum || 0) > 0;
+      const pensionLumpSumAge = Number(income.pensionLumpSumAge || retirementAge);
+      const cashFlowInflationFactor = scenario.cashFlowDollarBasis === "today"
+        ? 1
+        : Math.pow(1 + Number(profile.inflationRate || 0) / 100, yearsToRetirement);
+      const enteredRetirementIncomeMonthly = calculateMonthlyIncome(retirementAge, scenario);
+      const retirementIncomeMonthly = enteredRetirementIncomeMonthly * cashFlowInflationFactor;
 
       const projectedBeforeTaxAssets = Math.max(0, beforeTaxBalance);
       const projectedTaxedAccountAssets = Math.max(0, afterTaxBalance);
       const estimatedTaxRate = getActiveEstimatedTaxRate();
+      const deferredPensionLumpSumNet = pensionLumpSumIncluded && pensionLumpSumAge >= retirementAge
+        ? Number(income.pensionLumpSum || 0) * (1 - estimatedTaxRate / 100)
+        : 0;
       const projectedAfterTaxAssets = projectedTaxedAccountAssets + projectedBeforeTaxAssets * (1 - estimatedTaxRate / 100);
       const projectedAssetsAtRetirement = projectedBeforeTaxAssets + projectedTaxedAccountAssets;
       const projectedMonthlyIncome = retirementIncomeMonthly + projectedAfterTaxAssets * 0.0035;
       const projectedAnnualIncome = projectedMonthlyIncome * 12;
-      const projectedAnnualExpenses = calculateMonthlyExpenses() * 12 * Math.pow(1 + profile.inflationRate / 100, yearsToRetirement);
+      const projectedAnnualExpenses = calculateMonthlyExpenses() * 12 * cashFlowInflationFactor;
       const incomeGapAnnual = projectedAnnualExpenses - projectedAnnualIncome;
       const projectedMonthlyExpenses = projectedAnnualExpenses / 12;
       const projectedNetMonthlyIncome = projectedMonthlyIncome - projectedMonthlyExpenses;
@@ -1500,22 +1510,39 @@
         110
       );
       let retirementMonth = 0;
+      let deferredPensionAdded = deferredPensionLumpSumNet <= 0;
       const monthlyRetirementReturn = Math.pow(1.04, 1 / 12) - 1;
-      while (asset > 0 && age < 110) {
-        const activeMonthlyIncome = calculateMonthlyIncome(Math.floor(age));
+      while (age < 110) {
+        if (!deferredPensionAdded && age >= pensionLumpSumAge) {
+          asset += deferredPensionLumpSumNet;
+          deferredPensionAdded = true;
+        }
+        const activeMonthlyIncome = calculateMonthlyIncome(Math.floor(age), scenario) * cashFlowInflationFactor;
         asset = Math.max(0, asset + activeMonthlyIncome - projectedMonthlyExpenses);
         asset *= 1 + monthlyRetirementReturn;
         retirementMonth++;
         age = retirementAge + retirementMonth / 12;
+        if (asset <= 0 && deferredPensionAdded) break;
       }
       depletionAge = Math.min(110, Math.ceil(age));
 
-      const readinessRatio = projectedAnnualIncome / Math.max(1, projectedAnnualExpenses);
-      const savingsRatio = projectedAfterTaxAssets / Math.max(1, projectedAnnualExpenses * 25);
+      const expenseCoverageRatio = clamp(projectedAnnualIncome / Math.max(1, projectedAnnualExpenses), 0, 1);
+      const savingsRatio = clamp(projectedAfterTaxAssets / Math.max(1, projectedAnnualExpenses * 25), 0, 1);
       const retirementYearsNeeded = Math.max(1, projectedLongevity - retirementAge);
       const fundedYears = Math.max(0, Math.min(depletionAge, projectedLongevity) - retirementAge);
       const longevityRatio = clamp(fundedYears / retirementYearsNeeded, 0, 1);
-      const score = clamp(Math.round(readinessRatio * 45 + savingsRatio * 35 + longevityRatio * 20), 0, 100);
+      const targetMonthlyIncome = Number(profile.currentAnnualIncome || 0) / 12
+        * (Number(profile.targetRetirementIncomePercent || 0) / 100)
+        * cashFlowInflationFactor;
+      const targetIncomeCoverageRatio = targetMonthlyIncome > 0
+        ? clamp(projectedMonthlyIncome / targetMonthlyIncome, 0, 1)
+        : 1;
+      const score = clamp(Math.round(
+        targetIncomeCoverageRatio * 50
+        + expenseCoverageRatio * 20
+        + savingsRatio * 10
+        + longevityRatio * 20
+      ), 0, 100);
 
       return {
         projectedAssetsAtRetirement,
@@ -1523,6 +1550,8 @@
         projectedAfterTaxAssets,
         projectedTaxedAccountAssets,
         estimatedTaxRate,
+        cashFlowInflationFactor,
+        enteredRetirementIncomeMonthly,
         retirementIncomeMonthly,
         projectedMonthlyIncome,
         projectedMonthlyExpenses,
@@ -1530,6 +1559,12 @@
         projectedAnnualIncome,
         projectedAnnualExpenses,
         incomeGapAnnual,
+        targetMonthlyIncome,
+        targetIncomeCoverageRatio,
+        expenseCoverageRatio,
+        savingsRatio,
+        deferredPensionLumpSumNet,
+        pensionLumpSumAge,
         depletionAge,
         projectedLongevity,
         longevityRatio,
@@ -1934,6 +1969,28 @@
       const compactValue = value => value >= 1000000
         ? `$${(value / 1000000).toFixed(1)}M`
         : `$${Math.round(value / 1000)}K`;
+      const chartTooltip = (x, y, heading, value) => {
+        const tooltipWidth = 154;
+        const tooltipX = clamp(x - tooltipWidth / 2, margin.left, width - margin.right - tooltipWidth);
+        const tooltipY = Math.max(margin.top, y - 43);
+        return `<g class="svg-chart-tooltip" transform="translate(${tooltipX} ${tooltipY})">
+          <rect width="${tooltipWidth}" height="36"></rect>
+          <text x="9" y="14">${escapeHtml(heading)}</text>
+          <text x="9" y="28">${currency(value)}</text>
+        </g>`;
+      };
+      const cashFlowTooltip = (x, y, ageLabel, balanceValue, incomeValue, expenseValue, expenseLabel = "Expenses") => {
+        const tooltipWidth = 174;
+        const tooltipX = clamp(x - tooltipWidth / 2, margin.left, width - margin.right - tooltipWidth);
+        const tooltipY = clamp(y - 70, margin.top, height - margin.bottom - 66);
+        return `<g class="svg-chart-tooltip" transform="translate(${tooltipX} ${tooltipY})">
+          <rect width="${tooltipWidth}" height="62"></rect>
+          <text x="9" y="14">${escapeHtml(ageLabel)}</text>
+          <text x="9" y="28">Balance: ${currency(balanceValue)}</text>
+          <text x="9" y="42">Income: +${currency(incomeValue)}</text>
+          <text x="9" y="56">${escapeHtml(expenseLabel)}: -${currency(expenseValue)}</text>
+        </g>`;
+      };
       const currentAge = Number(profile.currentAge || 0);
       const retirementAge = Math.max(currentAge, Number(selected.retirementAge || currentAge));
       const years = Math.max(0, retirementAge - currentAge);
@@ -1949,17 +2006,6 @@
         }
         return { name: account.name || prettyType(account.type), color: colors[index % colors.length], values };
       });
-      if (income.pensionMode === "lumpSum" && Number(income.pensionLumpSum || 0) > 0) {
-        const payoutAge = Number(income.pensionLumpSumAge || retirementAge);
-        let balance = 0;
-        const values = [];
-        for (let age = currentAge; age <= retirementAge; age++) {
-          if (age === payoutAge) balance += Number(income.pensionLumpSum || 0);
-          else if (age > payoutAge) balance *= 1.04;
-          values.push(balance);
-        }
-        series.push({ name: "Pension lump sum", color: colors[series.length % colors.length], values });
-      }
       const totalValues = Array.from({ length: years + 1 }, (_, index) => series.reduce((sum, item) => sum + Number(item.values[index] || 0), 0));
       const maxBurnUp = Math.max(1, ...totalValues) * 1.08;
       const xUp = index => margin.left + (index / Math.max(1, years)) * (width - margin.left - margin.right);
@@ -1980,32 +2026,81 @@
       });
       const totalPoints = totalValues.map((value, index) => `${xUp(index)},${yUp(value)}`).join(" ");
       burnUpSvg += `<polyline points="${totalPoints}" fill="none" stroke="#0f172a" stroke-width="3"><title>Total portfolio</title></polyline>`;
+      totalValues.forEach((value, index) => {
+        const age = currentAge + index;
+        burnUpSvg += `<circle class="chart-hover-point" style="color:#0f172a" cx="${xUp(index)}" cy="${yUp(value)}" r="6" tabindex="0" aria-label="Age ${age}, total portfolio ${currency(value)}"><title>Age ${age} · Total portfolio: ${currency(value)}</title></circle>`;
+      });
+      const incomeMarkers = [];
+      if (selected.includeSocialSecurity !== false && Number(income.socialSecurityMonthly || 0) > 0) {
+        incomeMarkers.push({
+          name: "Social Security income",
+          amount: Number(income.socialSecurityMonthly || 0),
+          age: Number(income.incomeDurations?.socialSecurity?.startAge ?? retirementAge),
+          color: "#0891b2"
+        });
+      }
+      if (selected.includePension !== false) {
+        const pensionAmount = income.pensionMode === "lumpSum" ? Number(income.pensionLumpSum || 0) : Number(income.pensionMonthly || 0);
+        if (pensionAmount > 0) incomeMarkers.push({
+          name: income.pensionMode === "lumpSum" ? "Pension lump sum" : "Pension income",
+          amount: pensionAmount,
+          age: Number(income.pensionMode === "lumpSum" ? (income.pensionLumpSumAge ?? retirementAge) : (income.incomeDurations?.pension?.startAge ?? retirementAge)),
+          color: "#9333ea"
+        });
+      }
+      incomeMarkers.forEach((marker, index) => {
+        const markerIndex = clamp(marker.age - currentAge, 0, years);
+        const markerX = xUp(markerIndex);
+        const markerY = margin.top + 9 + index * 18;
+        const timing = marker.age > retirementAge ? `scheduled after this chart at age ${marker.age}` : `starts at age ${marker.age}`;
+        const amountType = marker.name.includes("lump sum") ? "payment" : "monthly";
+        burnUpSvg += `<line x1="${markerX}" y1="${markerY}" x2="${markerX}" y2="${height-margin.bottom}" stroke="${marker.color}" stroke-width="1.5" stroke-dasharray="3 4" opacity=".7"></line>`;
+        burnUpSvg += `<g class="chart-hover-group"><circle cx="${markerX}" cy="${markerY}" r="7" fill="${marker.color}" tabindex="0" aria-label="${marker.name}, ${timing}, ${amountType} amount ${currency(marker.amount)}"><title>${marker.name} · ${timing} · ${amountType}: ${currency(marker.amount)}</title></circle>${chartTooltip(markerX, markerY + 48, `${marker.name} · Age ${marker.age}`, marker.amount)}</g>`;
+      });
       [0, Math.floor(years / 2), years].forEach((index, position) => {
         burnUpSvg += `<text class="chart-axis-label" x="${xUp(index)}" y="${height-8}" text-anchor="${position === 0 ? "start" : position === 2 ? "end" : "middle"}">Age ${currentAge + index}</text>`;
       });
       burnUpSvg += `</svg>`;
       burnUpEl.innerHTML = burnUpSvg;
-      legendEl.innerHTML = series.map(item => `<span style="--legend-color:${item.color}">${escapeHtml(item.name)}</span>`).join("") + '<span style="--legend-color:#0f172a">Total</span>';
+      legendEl.innerHTML = series.map(item => `<span style="--legend-color:${item.color}">${escapeHtml(item.name)}</span>`).join("")
+        + '<span style="--legend-color:#0f172a">Total portfolio</span>'
+        + incomeMarkers.map(item => `<span style="--legend-color:${item.color}">${escapeHtml(item.name)} (income marker)</span>`).join("");
 
       const longevityAge = Math.max(retirementAge + 1, Number(projection.projectedLongevity || profile.lifeExpectancy || retirementAge + 1));
       const downYears = longevityAge - retirementAge;
       const downMonths = downYears * 12;
       let balance = Number(projection.projectedAfterTaxAssets || 0);
+      let targetLifestyleBalance = balance;
       const balances = [balance];
+      const targetLifestyleBalances = [targetLifestyleBalance];
       const monthlyIncomes = [];
       const monthlyExpenses = [];
       const monthlyMarketReturn = Math.pow(1.04, 1 / 12) - 1;
+      let deferredPensionAdded = Number(projection.deferredPensionLumpSumNet || 0) <= 0;
+      let targetDeferredPensionAdded = deferredPensionAdded;
       for (let month = 0; month < downMonths; month++) {
         const age = retirementAge + month / 12;
-        const incomeAdded = calculateMonthlyIncome(Math.floor(age));
+        if (!deferredPensionAdded && age >= Number(projection.pensionLumpSumAge)) {
+          balance += Number(projection.deferredPensionLumpSumNet || 0);
+          deferredPensionAdded = true;
+        }
+        if (!targetDeferredPensionAdded && age >= Number(projection.pensionLumpSumAge)) {
+          targetLifestyleBalance += Number(projection.deferredPensionLumpSumNet || 0);
+          targetDeferredPensionAdded = true;
+        }
+        const incomeAdded = calculateMonthlyIncome(Math.floor(age), selected) * Number(projection.cashFlowInflationFactor || 1);
         const expenseDeducted = Number(projection.projectedMonthlyExpenses || 0);
+        const targetLifestyleSpending = Number(projection.targetMonthlyIncome || 0);
         monthlyIncomes.push(incomeAdded);
         monthlyExpenses.push(expenseDeducted);
         balance = Math.max(0, balance + incomeAdded - expenseDeducted);
         balance *= 1 + monthlyMarketReturn;
+        targetLifestyleBalance = Math.max(0, targetLifestyleBalance + incomeAdded - targetLifestyleSpending);
+        targetLifestyleBalance *= 1 + monthlyMarketReturn;
         balances.push(balance);
+        targetLifestyleBalances.push(targetLifestyleBalance);
       }
-      const maxBalance = Math.max(1, ...balances) * 1.08;
+      const maxBalance = Math.max(1, ...balances, ...targetLifestyleBalances) * 1.08;
       const maxFlow = Math.max(1, ...monthlyIncomes, ...monthlyExpenses);
       const xDown = index => margin.left + (index / Math.max(1, downMonths)) * (width - margin.left - margin.right);
       const yDown = value => height - margin.bottom - (value / maxBalance) * (height - margin.top - margin.bottom - 38);
@@ -2016,26 +2111,61 @@
         burnDownSvg += `<line class="chart-grid-line" x1="${margin.left}" y1="${y}" x2="${width-margin.right}" y2="${y}"></line><text class="chart-axis-label" x="${margin.left-6}" y="${y+4}" text-anchor="end">${compactValue(value)}</text>`;
       }
       const barWidth = Math.max(2, (width - margin.left - margin.right) / Math.max(1, downYears) * .24);
+      let flowHoverSvg = "";
       for (let year = 0; year < downYears; year++) {
         const index = year * 12;
         const amount = monthlyIncomes[index] || 0;
         const baseY = height - margin.bottom;
         const barHeight = amount / maxFlow * 30;
-        burnDownSvg += `<rect x="${xDown(index)-barWidth-1}" y="${baseY-barHeight}" width="${barWidth}" height="${barHeight}" fill="#16a34a" opacity=".7"><title>Age ${retirementAge+year} monthly income offset: ${currency(amount)}</title></rect>`;
+        burnDownSvg += `<rect x="${xDown(index)-barWidth-1}" y="${baseY-barHeight}" width="${barWidth}" height="${Math.max(3, barHeight)}" fill="#16a34a" opacity=".7" tabindex="0" aria-label="Age ${retirementAge+year}, income added ${currency(amount)}"><title>Age ${retirementAge+year} · Income added: ${currency(amount)}</title></rect>`;
         const expenseHeight = Number(monthlyExpenses[index] || 0) / maxFlow * 30;
-        burnDownSvg += `<rect x="${xDown(index)+1}" y="${baseY-expenseHeight}" width="${barWidth}" height="${expenseHeight}" fill="#dc2626" opacity=".7"><title>Age ${retirementAge+year} monthly expenses: ${currency(monthlyExpenses[index] || 0)}</title></rect>`;
+        burnDownSvg += `<rect x="${xDown(index)+1}" y="${baseY-expenseHeight}" width="${barWidth}" height="${Math.max(3, expenseHeight)}" fill="#dc2626" opacity=".7" tabindex="0" aria-label="Age ${retirementAge+year}, expenses deducted ${currency(monthlyExpenses[index] || 0)}"><title>Age ${retirementAge+year} · Expenses deducted: ${currency(monthlyExpenses[index] || 0)}</title></rect>`;
+        const flowHitWidth = Math.max(10, barWidth);
+        flowHoverSvg += `<g class="chart-hover-group"><rect class="chart-flow-hit" x="${xDown(index)-flowHitWidth-1}" y="${baseY-36}" width="${flowHitWidth}" height="38" tabindex="0" aria-label="Age ${retirementAge+year}, total monthly income ${currency(amount)}"><title>Age ${retirementAge+year} · Total monthly income added: ${currency(amount)}</title></rect>${chartTooltip(xDown(index), baseY - 36, `Age ${retirementAge+year} · Income`, amount)}</g>`;
+        flowHoverSvg += `<g class="chart-hover-group"><rect class="chart-flow-hit" x="${xDown(index)+1}" y="${baseY-36}" width="${flowHitWidth}" height="38" tabindex="0" aria-label="Age ${retirementAge+year}, total monthly expenses ${currency(monthlyExpenses[index] || 0)}"><title>Age ${retirementAge+year} · Total monthly expenses deducted: ${currency(monthlyExpenses[index] || 0)}</title></rect>${chartTooltip(xDown(index), baseY - 76, `Age ${retirementAge+year} · Expenses`, monthlyExpenses[index] || 0)}</g>`;
       }
       const balancePoints = balances.map((value, index) => `${xDown(index)},${yDown(value)}`).join(" ");
+      const targetLifestylePoints = targetLifestyleBalances.map((value, index) => `${xDown(index)},${yDown(value)}`).join(" ");
       const balanceArea = `${xDown(0)},${yDown(0)} ${balancePoints} ${xDown(downMonths)},${yDown(0)}`;
       burnDownSvg += `<polygon points="${balanceArea}" fill="url(#burnDownBalanceFill)" stroke="none"><title>Spendable retirement portfolio from age ${retirementAge} through ${longevityAge}</title></polygon>`;
-      burnDownSvg += `<polyline points="${balancePoints}" fill="none" stroke="#2563eb" stroke-width="3"><title>Spendable portfolio balance</title></polyline>`;
+      burnDownSvg += `<polyline points="${balancePoints}" fill="none" stroke="#2563eb" stroke-width="3"><title>Portfolio based on entered expenses</title></polyline>`;
+      burnDownSvg += `<polyline points="${targetLifestylePoints}" fill="none" stroke="#f59e0b" stroke-width="3" stroke-dasharray="7 5"><title>Portfolio based on target lifestyle spending of ${currency(projection.targetMonthlyIncome || 0)} per month</title></polyline>`;
+      balances.forEach((value, index) => {
+        const age = retirementAge + index / 12;
+        const ageLabel = Number.isInteger(age) ? `Age ${age}` : `Age ${Math.floor(age)} + ${index % 12} month${index % 12 === 1 ? "" : "s"}`;
+        const flowIndex = Math.min(index, Math.max(0, monthlyIncomes.length - 1));
+        const incomeAtAge = Number(monthlyIncomes[flowIndex] || 0);
+        const expensesAtAge = Number(monthlyExpenses[flowIndex] || 0);
+        burnDownSvg += `<g class="chart-hover-group"><circle class="chart-hover-point" style="color:#2563eb" cx="${xDown(index)}" cy="${yDown(value)}" r="5" tabindex="0" aria-label="${ageLabel}, balance ${currency(value)}, income ${currency(incomeAtAge)}, expenses ${currency(expensesAtAge)}"><title>${ageLabel} · Balance ${currency(value)} · Income ${currency(incomeAtAge)} · Expenses ${currency(expensesAtAge)}</title></circle>${cashFlowTooltip(xDown(index), yDown(value), ageLabel, value, incomeAtAge, expensesAtAge)}</g>`;
+        const targetValue = targetLifestyleBalances[index];
+        const targetSpending = Number(projection.targetMonthlyIncome || 0);
+        burnDownSvg += `<g class="chart-hover-group"><circle class="chart-hover-point" style="color:#f59e0b" cx="${xDown(index)}" cy="${yDown(targetValue)}" r="5" tabindex="0" aria-label="${ageLabel}, target lifestyle balance ${currency(targetValue)}, income ${currency(incomeAtAge)}, target expenses ${currency(targetSpending)}"><title>${ageLabel} · Target lifestyle balance ${currency(targetValue)} · Income ${currency(incomeAtAge)} · Target expenses ${currency(targetSpending)}</title></circle>${cashFlowTooltip(xDown(index), yDown(targetValue), ageLabel, targetValue, incomeAtAge, targetSpending, "Target expenses")}</g>`;
+      });
+      burnDownSvg += flowHoverSvg;
       burnDownSvg += `<circle cx="${xDown(0)}" cy="${yDown(balances[0])}" r="4" fill="#1d4ed8"><title>Retirement age ${retirementAge}: ${currency(balances[0])}</title></circle>`;
       burnDownSvg += `<circle cx="${xDown(downMonths)}" cy="${yDown(balances[downMonths])}" r="4" fill="#1d4ed8"><title>Longevity age ${longevityAge}: ${currency(balances[downMonths])}</title></circle>`;
+      burnDownSvg += `<circle cx="${xDown(downMonths)}" cy="${yDown(targetLifestyleBalances[downMonths])}" r="4" fill="#f59e0b"><title>Target lifestyle at longevity age ${longevityAge}: ${currency(targetLifestyleBalances[downMonths])}</title></circle>`;
       [0, Math.floor(downMonths / 2), downMonths].forEach((index, position) => {
         burnDownSvg += `<text class="chart-axis-label" x="${xDown(index)}" y="${height-8}" text-anchor="${position === 0 ? "start" : position === 2 ? "end" : "middle"}">Age ${Math.round(retirementAge + index / 12)}</text>`;
       });
       burnDownSvg += `</svg>`;
       burnDownEl.innerHTML = burnDownSvg;
+    }
+
+    function renderYesNoToggle(scenario, key, label) {
+      const enabled = scenario[key] !== false;
+      return `<div class="yes-no-toggle" role="group" aria-label="Include ${label} in ${escapeHtml(scenario.name)}">
+        <button type="button" class="${enabled ? "active" : ""}" data-scenario-toggle="${key}" data-sid="${scenario.id}" data-value="true" aria-pressed="${enabled}">Yes</button>
+        <button type="button" class="${!enabled ? "active" : ""}" data-scenario-toggle="${key}" data-sid="${scenario.id}" data-value="false" aria-pressed="${!enabled}">No</button>
+      </div>`;
+    }
+
+    function renderDollarBasisToggle(scenario) {
+      const today = scenario.cashFlowDollarBasis === "today";
+      return `<div class="yes-no-toggle dollar-basis-toggle" role="group" aria-label="Dollar basis for ${escapeHtml(scenario.name)}">
+        <button type="button" class="${today ? "active" : ""}" data-scenario-toggle="cashFlowDollarBasis" data-sid="${scenario.id}" data-value="today" aria-pressed="${today}">Today's Dollars</button>
+        <button type="button" class="${!today ? "active" : ""}" data-scenario-toggle="cashFlowDollarBasis" data-sid="${scenario.id}" data-value="inflation" aria-pressed="${!today}">Adjust for Inflation</button>
+      </div>`;
     }
 
     function renderScenarios() {
@@ -2044,25 +2174,50 @@
 
       scenarios.forEach((scenario) => {
         const proj = scenarioProjection(scenario);
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td><input type="text" value="${escapeHtml(scenario.name)}" data-sid="${scenario.id}" data-key="name" class="scenario-input"></td>
-          <td><input type="number" value="${scenario.retirementAge}" data-sid="${scenario.id}" data-key="retirementAge" class="scenario-input" style="width:90px"></td>
-          <td>${currency(proj.projectedAssetsAtRetirement)}</td>
-          <td>${currency(proj.projectedBeforeTaxAssets)}</td>
-          <td>${currency(proj.projectedTaxedAccountAssets)}</td>
-          <td>${currency(proj.projectedMonthlyIncome)}</td>
-          <td>-${currency(proj.projectedMonthlyExpenses)}</td>
-          <td>${currency(proj.projectedNetMonthlyIncome)}</td>
-          <td><input type="number" min="${Number(scenario.retirementAge) + 1}" max="110" step="1" value="${proj.projectedLongevity}" data-sid="${scenario.id}" data-key="projectedLongevity" class="scenario-input" style="width:90px" aria-label="Projected longevity for ${escapeHtml(scenario.name)}"></td>
-          <td>${proj.retirementReadinessScore}/100</td>
-          <td><button class="btn ghost" data-select-scenario="${scenario.id}">Select</button></td>
+        const card = document.createElement("article");
+        card.className = "scenario-comparison-card";
+        card.innerHTML = `
+          <div class="scenario-comparison-row scenario-assets-row">
+            <h4 class="scenario-row-heading">Portfolio Overview</h4>
+            <p class="scenario-row-note">Account balances and continuing contributions projected from current age to retirement using each account's expected market return. Income sources are excluded from these asset buckets.</p>
+            <div class="scenario-metric"><span class="scenario-metric-label">Total Projected Assets</span><span class="scenario-metric-value">${currency(proj.projectedAssetsAtRetirement)}</span></div>
+            <div class="scenario-metric"><span class="scenario-metric-label">Before-Tax Asset Bucket</span><span class="scenario-metric-value">${currency(proj.projectedBeforeTaxAssets)}</span></div>
+            <div class="scenario-metric"><span class="scenario-metric-label">After-Tax Asset Bucket</span><span class="scenario-metric-value">${currency(proj.projectedTaxedAccountAssets)}</span></div>
+            <button class="btn ghost" data-select-scenario="${scenario.id}">View Details</button>
+          </div>
+          <div class="scenario-comparison-row scenario-filters-row">
+            <h4 class="scenario-row-heading">Scenario Modifications</h4>
+            <label class="scenario-metric"><span class="scenario-metric-label">Scenario Name</span><input type="text" value="${escapeHtml(scenario.name)}" data-sid="${scenario.id}" data-key="name" class="scenario-input" aria-label="Scenario name"></label>
+            <div class="scenario-metric"><span class="scenario-metric-label">Income &amp; Expense Values</span>${renderDollarBasisToggle(scenario)}</div>
+            <div class="scenario-metric"><span class="scenario-metric-label">Social Security</span>${renderYesNoToggle(scenario, "includeSocialSecurity", "Social Security")}</div>
+            <div class="scenario-metric"><span class="scenario-metric-label">Pension</span>${renderYesNoToggle(scenario, "includePension", "Pension")}</div>
+            <label class="scenario-metric"><span class="scenario-metric-label">Retirement Age</span><input type="number" min="${Number(profile.currentAge)}" max="109" step="1" value="${scenario.retirementAge}" data-sid="${scenario.id}" data-key="retirementAge" class="scenario-input scenario-age-input" aria-label="Retirement age for ${escapeHtml(scenario.name)}"></label>
+            <label class="scenario-metric"><span class="scenario-metric-label">Projected Longevity</span><input type="number" min="${Number(scenario.retirementAge) + 1}" max="110" step="1" value="${proj.projectedLongevity}" data-sid="${scenario.id}" data-key="projectedLongevity" class="scenario-input scenario-age-input" aria-label="Projected longevity for ${escapeHtml(scenario.name)}"></label>
+          </div>
+          <div class="scenario-comparison-row scenario-results-row">
+            <div class="scenario-metric"><span class="scenario-metric-label">Monthly Income vs. Target</span><span class="scenario-metric-value">${currency(proj.projectedMonthlyIncome)} / ${currency(proj.targetMonthlyIncome)}</span><span class="scenario-metric-context">${Math.round(proj.targetIncomeCoverageRatio * 100)}% of target</span></div>
+            <div class="scenario-metric"><span class="scenario-metric-label">Monthly Expenses</span><span class="scenario-metric-value">-${currency(proj.projectedMonthlyExpenses)}</span></div>
+            <div class="scenario-metric"><span class="scenario-metric-label">Net Monthly Income</span><span class="scenario-metric-value">${proj.projectedNetMonthlyIncome >= 0 ? "+" : "-"}${currency(Math.abs(proj.projectedNetMonthlyIncome))}</span></div>
+            <div class="scenario-metric"><span class="scenario-metric-label">Retirement Success Score</span><span class="scenario-metric-value">${proj.retirementReadinessScore}/100</span></div>
+          </div>
         `;
-        tbody.appendChild(tr);
+        tbody.appendChild(card);
       });
 
       tbody.querySelectorAll(".scenario-input").forEach((input) => {
-        input.addEventListener(input.getAttribute("data-key") === "projectedLongevity" ? "change" : "input", handleScenarioChange);
+        input.addEventListener("change", handleScenarioChange);
+      });
+
+      tbody.querySelectorAll("[data-scenario-toggle]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const sid = button.getAttribute("data-sid");
+          const key = button.getAttribute("data-scenario-toggle");
+          const rawValue = button.getAttribute("data-value");
+          const value = key === "cashFlowDollarBasis" ? rawValue : rawValue === "true";
+          scenarios = scenarios.map(s => s.id === sid ? { ...s, [key]: value } : s);
+          saveToLocalStorage(STORAGE_KEYS.scenarios, scenarios);
+          refreshAll();
+        });
       });
 
       tbody.querySelectorAll("[data-select-scenario]").forEach((btn) => {
@@ -2081,6 +2236,11 @@
         const estimatedRetirementTaxes = proj.projectedBeforeTaxAssets * (proj.estimatedTaxRate / 100);
         const spendableBeforeTaxAssets = proj.projectedBeforeTaxAssets - estimatedRetirementTaxes;
         const currentMonthlyExpenses = calculateMonthlyExpenses();
+        const enteredIncomeSources = monthlyIncomeSources();
+        const enteredMonthlyIncome = Object.values(enteredIncomeSources).reduce((sum, value) => sum + Number(value || 0), 0);
+        const eligibleIncomeBeforeChoices = calculateMonthlyIncome(Number(selected.retirementAge), { includeSocialSecurity: true, includePension: true });
+        const retirementSocialSecurity = incomeSourceIsActive("socialSecurity", Number(selected.retirementAge), selected) ? enteredIncomeSources.socialSecurity : 0;
+        const retirementPension = incomeSourceIsActive("pension", Number(selected.retirementAge), selected) ? enteredIncomeSources.pension : 0;
         const expenseInflationYears = Math.max(0, Number(selected.retirementAge) - Number(profile.currentAge));
         const monthlyRetirementRate = Math.pow(1.04, 1 / 12) - 1;
         const firstMonthCashAdjustment = proj.retirementIncomeMonthly - proj.projectedMonthlyExpenses;
@@ -2106,28 +2266,36 @@
 
             <div class="portfolio-breakdown-section">
               <h4>2. Monthly increases and decreases</h4>
-              <div class="portfolio-flow-row increase"><span>Income sources added</span><span class="amount">+${currency(proj.retirementIncomeMonthly)}</span></div>
-              <div class="portfolio-flow-row decrease"><span>Inflation-adjusted expenses deducted</span><span class="amount">-${currency(proj.projectedMonthlyExpenses)}</span></div>
+              <div class="portfolio-flow-row"><span>Recurring income entered</span><span class="amount">${currency(enteredMonthlyIncome)}</span></div>
+              <div class="portfolio-flow-row"><span>Income eligible at age ${selected.retirementAge}</span><span class="amount">${currency(eligibleIncomeBeforeChoices)}</span></div>
+              <div class="portfolio-flow-row ${selected.includeSocialSecurity === false ? "decrease" : "increase"}"><span>Social Security (${selected.includeSocialSecurity === false ? "excluded" : "included"}; entered ${currency(enteredIncomeSources.socialSecurity)})</span><span class="amount">${currency(selected.includeSocialSecurity === false ? 0 : retirementSocialSecurity)}</span></div>
+              <div class="portfolio-flow-row ${selected.includePension === false ? "decrease" : "increase"}"><span>Pension (${selected.includePension === false ? "excluded" : "included"}; entered ${currency(enteredIncomeSources.pension)})</span><span class="amount">${currency(selected.includePension === false ? 0 : retirementPension)}</span></div>
+              <div class="portfolio-flow-row increase"><span>Adjusted recurring income added</span><span class="amount">+${currency(proj.retirementIncomeMonthly)}</span></div>
+              <div class="portfolio-flow-row"><span>Expenses entered today</span><span class="amount">${currency(currentMonthlyExpenses)}</span></div>
+              <div class="portfolio-flow-row decrease"><span>Adjusted expenses at retirement (${Number(profile.inflationRate || 0).toFixed(1)}% inflation)</span><span class="amount">-${currency(proj.projectedMonthlyExpenses)}</span></div>
               <div class="portfolio-flow-row ${firstMonthCashAdjustment >= 0 ? "increase" : "decrease"}"><span>Net monthly cash adjustment</span><span class="amount">${firstMonthCashAdjustment >= 0 ? "+" : "-"}${currency(Math.abs(firstMonthCashAdjustment))}</span></div>
               <div class="portfolio-flow-row increase"><span>First-month market growth (${(monthlyRetirementRate * 100).toFixed(3)}%)</span><span class="amount">+${currency(firstMonthMarketGrowth)}</span></div>
               <div class="portfolio-flow-row total"><span>Estimated balance after month one</span><span class="amount">${currency(firstMonthEndingBalance)}</span></div>
-              <p class="portfolio-flow-note">Each following month repeats this order: add applicable income, subtract expenses, then apply the monthly equivalent of the 4% annual market return to the remaining balance.</p>
+              <p class="portfolio-flow-note">The entered-expenses path repeats this order each month: add applicable income, subtract entered expenses, then apply the monthly equivalent of the 4% annual market return. The target-lifestyle path uses the same sequence but substitutes the scenario's ${currency(proj.targetMonthlyIncome)} monthly retirement-income target as planned spending.</p>
             </div>
 
             <div class="portfolio-breakdown-section">
-              <h4>3. Why projected expenses are higher</h4>
+              <h4>3. Income and expense dollar basis</h4>
               <div class="portfolio-flow-row"><span>Expenses entered today</span><span class="amount">${currency(currentMonthlyExpenses)}</span></div>
-              <div class="portfolio-flow-row decrease"><span>${Number(profile.inflationRate || 0).toFixed(1)}% inflation for ${expenseInflationYears} years</span><span class="amount">→ ${currency(proj.projectedMonthlyExpenses)}</span></div>
-              <p class="portfolio-flow-note">The expense total is projected from age ${profile.currentAge} to retirement age ${selected.retirementAge} before monthly deductions begin.</p>
+              <div class="portfolio-flow-row"><span>Selected display</span><span class="amount">${selected.cashFlowDollarBasis === "today" ? "Today's Dollars" : "Adjusted for Inflation"}</span></div>
+              <div class="portfolio-flow-row decrease"><span>${selected.cashFlowDollarBasis === "today" ? "No inflation adjustment" : `${Number(profile.inflationRate || 0).toFixed(1)}% inflation for ${expenseInflationYears} years`}</span><span class="amount">→ ${currency(proj.projectedMonthlyExpenses)}</span></div>
+              <p class="portfolio-flow-note">The selected dollar basis is applied consistently to eligible recurring income and expenses for this scenario.</p>
             </div>
 
             <div class="portfolio-breakdown-section">
               <h4>4. Success score impact</h4>
-              <div class="portfolio-flow-row increase"><span>Income coverage versus expenses</span><span class="amount">45%</span></div>
-              <div class="portfolio-flow-row increase"><span>Spendable assets versus funding target</span><span class="amount">35%</span></div>
-              <div class="portfolio-flow-row increase"><span>Portfolio coverage through longevity</span><span class="amount">20%</span></div>
+              <div class="portfolio-flow-row"><span>Target monthly income (${currency(proj.targetMonthlyIncome)})</span><span class="amount">${Math.round(proj.targetIncomeCoverageRatio * 100)}% covered</span></div>
+              <div class="portfolio-flow-row increase"><span>Target-income coverage</span><span class="amount">50% of score</span></div>
+              <div class="portfolio-flow-row increase"><span>Income coverage versus expenses</span><span class="amount">20% of score</span></div>
+              <div class="portfolio-flow-row increase"><span>Spendable asset funding level</span><span class="amount">10% of score</span></div>
+              <div class="portfolio-flow-row increase"><span>Portfolio coverage through longevity</span><span class="amount">20% of score</span></div>
               <div class="portfolio-flow-row total"><span>Current success score</span><span class="amount">${proj.retirementReadinessScore}/100</span></div>
-              <p class="portfolio-flow-note">Income and market growth increase the balance and support the score. Taxes, expenses, and earlier depletion reduce spendable assets and lower the score.</p>
+              <p class="portfolio-flow-note">The target is derived from current annual income and the target percentage entered in Profile, then expressed in this scenario's selected dollar basis. Reaching the target is the largest score component, while affordability and portfolio durability prevent target income alone from overstating success.</p>
             </div>
           </div>
         `;
@@ -2414,6 +2582,9 @@
         pensionMode: income.pensionMode,
         pensionLumpSum: income.pensionLumpSum,
         pensionLumpSumAge: income.pensionLumpSumAge,
+        includeSocialSecurity: true,
+        includePension: true,
+        cashFlowDollarBasis: "inflation",
         projectedLongevity: profile.lifeExpectancy
       };
       scenarios.push(scenario);
@@ -2665,7 +2836,7 @@
       bindTabs();
       bindLiveInputs();
       refreshAll();
-      activatePage("dashboard");
+      activatePage("profile");
 
     }
 
